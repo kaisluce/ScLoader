@@ -1,6 +1,6 @@
 import { ref, onMounted, onUnmounted, watchEffect, nextTick } from 'vue'
+import { API_BASE_URL } from '@/config/api'
 
-const BASE_URL = 'http://localhost:3000/api'
 const MAX_ENTRIES = 500
 
 export default function useLogs(scrollContainer) {
@@ -48,7 +48,7 @@ export default function useLogs(scrollContainer) {
   onMounted(async () => {
     // logs:getAll equivalent
     try {
-      const res = await fetch(`${BASE_URL}/logs`)
+      const res = await fetch(`${API_BASE_URL}/logs`)
       if (res.ok) {
         logs.value = await res.json()
       }
@@ -57,7 +57,7 @@ export default function useLogs(scrollContainer) {
     }
 
     // logs:new equivalent — SSE stream
-    eventSource = new EventSource(`${BASE_URL}/logs/stream`)
+    eventSource = new EventSource(`${API_BASE_URL}/logs/stream`)
 
     eventSource.onmessage = (event) => {
       try {
@@ -89,7 +89,7 @@ export default function useLogs(scrollContainer) {
 
   async function clearLogs() {
     try {
-      await fetch(`${BASE_URL}/logs/clear`, { method: 'POST' })
+      await fetch(`${API_BASE_URL}/logs/clear`, { method: 'POST' })
       logs.value = []
     } catch (err) {
       console.error('useLogs: failed to clear logs', err)

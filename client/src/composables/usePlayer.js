@@ -1,6 +1,5 @@
 import { reactive } from 'vue'
-
-const PLAYER_API = 'http://localhost:3000/api'
+import { API_BASE_URL } from '@/config/api'
 
 // État réactif global (singleton, hors du composable)
 const state = reactive({
@@ -46,7 +45,7 @@ function getAudio() {
 }
 
 async function resolvePreview(track) {
-  const res = await fetch(`${PLAYER_API}/player/resolve`, {
+  const res = await fetch(`${API_BASE_URL}/player/resolve`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ track })

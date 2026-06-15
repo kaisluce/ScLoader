@@ -1,6 +1,6 @@
 import { ref, onMounted, onUnmounted } from 'vue'
+import { API_BASE_URL } from '@/config/api'
 
-const BASE_URL = 'http://localhost:3000/api'
 const POLL_INTERVAL = 1000
 
 function useDownloadQueue() {
@@ -14,7 +14,7 @@ function useDownloadQueue() {
     try {
       isLoading.value = true
       error.value = null
-      const response = await fetch(`${BASE_URL}/downloads`)
+      const response = await fetch(`${API_BASE_URL}/downloads`)
 
       if (!response.ok) {
         throw new Error('Failed to fetch queue')
@@ -40,7 +40,7 @@ function useDownloadQueue() {
         throw new Error('Track has no available streams')
       }
 
-      const response = await fetch(`${BASE_URL}/downloads`, {
+      const response = await fetch(`${API_BASE_URL}/downloads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ track, quality })
@@ -65,7 +65,7 @@ function useDownloadQueue() {
 
   async function removeFromQueue(id) {
     try {
-      const response = await fetch(`${BASE_URL}/downloads/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/downloads/${id}`, {
         method: 'DELETE'
       })
 
@@ -82,7 +82,7 @@ function useDownloadQueue() {
 
   async function clearCompleted() {
     try {
-      const response = await fetch(`${BASE_URL}/downloads/clearCompleted`, {
+      const response = await fetch(`${API_BASE_URL}/downloads/clearCompleted`, {
         method: 'POST'
       })
 

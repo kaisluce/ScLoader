@@ -2,9 +2,8 @@ const CLIENT_ID = 'QNR5nrdLOvApYERC8AOUr3VjRfHnLjle'
 const APP_VERSION = '1781092636'
 const APP_LOCALE = 'en'
 
-const BASE_URL = process.env.NODE_ENV === 'development'
-  ? 'http://localhost:3000/api/soundcloud'
-  : 'https://api-v2.soundcloud.com'
+const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || 'http://localhost:3000/api'
+const BASE_URL = `${API_BASE_URL.replace(/\/$/, '')}/soundcloud`
 
 function buildParams(extra = {}) {
   const params = new URLSearchParams({
@@ -17,4 +16,4 @@ function buildParams(extra = {}) {
   return params
 }
 
-export { CLIENT_ID, APP_VERSION, APP_LOCALE, BASE_URL, buildParams }
+export { CLIENT_ID, APP_VERSION, APP_LOCALE, API_BASE_URL, BASE_URL, buildParams }
