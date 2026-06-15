@@ -1,14 +1,19 @@
 <template>
   <div class="app-layout">
     <AppSidebar />
-    <main class="main-content">
+    <main class="main-content" :class="{ 'with-player': state.currentTrack }">
       <RouterView />
     </main>
+    <MiniPlayer />
   </div>
 </template>
 
 <script setup>
 import AppSidebar from './components/AppSidebar.vue'
+import MiniPlayer from './components/MiniPlayer.vue'
+import usePlayer from './composables/usePlayer'
+
+const { state } = usePlayer()
 </script>
 
 <style scoped>
@@ -16,13 +21,22 @@ import AppSidebar from './components/AppSidebar.vue'
   display: flex;
   width: 100%;
   height: 100vh;
+  overflow: hidden;
   background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
 .main-content {
   flex: 1;
-  margin-left: 60px;
-  overflow-y: auto;
-  background-color: var(--color-bg);
+  min-width: 0;
+  margin-left: 64px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Réduit la zone de contenu de la hauteur du MiniPlayer (box-sizing: border-box global) */
+.main-content.with-player {
+  padding-bottom: 72px;
 }
 </style>

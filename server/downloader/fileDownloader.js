@@ -1,12 +1,17 @@
 const https = require('https')
 const fs = require('fs')
 const path = require('path')
-const os = require('os')
 const config = require('../config')
 
 const MAX_RETRIES = 3
 
-async function downloadToTemp(url, fileName, onProgress = () => {}) {
+/**
+ * @param {string} url
+ * @param {string} fileName
+ * @param {(percent: number) => void} onProgress
+ * @param {(contentLength: number|null) => void} onStart  Called once when the response headers arrive
+ */
+async function downloadToTemp(url, fileName, onProgress = () => {}, onStart = () => {}) {
   const tempDir = config.TEMP_DIR
 
   if (!fs.existsSync(tempDir)) {
@@ -25,6 +30,8 @@ async function downloadToTemp(url, fileName, onProgress = () => {}) {
         }
 
         const contentLength = parseInt(res.headers['content-length'], 10)
+        onStart(contentLength > 0 ? contentLength : null)
+
         let downloadedBytes = 0
 
         const file = fs.createWriteStream(filePath)

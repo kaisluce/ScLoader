@@ -56,10 +56,15 @@ async function convertToMp3(inputPath, outputPath, quality = 'medium', onProgres
 
   return new Promise((resolve, reject) => {
     const ffmpeg = spawn(ffmpegBinary, [
-      '-protocol_whitelist', 'file,http,https,tcp,tls',
-      '-i', inputPath,
-      '-b:a', qualitySettings.bitrate,
-      '-acodec', 'libmp3lame',
+      // Generic, safe for both progressive (mp3) and remote HLS inputs.
+      // NB: do NOT add -allowed_extensions (HLS-demuxer-only option that
+      // makes ffmpeg fail on plain mp3 inputs with "Option not found").
+      '-protocol_whitelist', 'file,http,https,tcp,tls,crypto,hls',
+      '-err_detect',          'ignore_err',
+      '-i',                   inputPath,
+      '-b:a',                 qualitySettings.bitrate,
+      '-acodec',              'libmp3lame',
+      '-vn',   // drop any cover/video stream that could break the conversion
       '-y',
       outputPath
     ])

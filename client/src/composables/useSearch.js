@@ -1,8 +1,8 @@
 import { ref } from 'vue'
 import {
   search,
-  searchSuggestions,
-  searchTracks
+  searchByType,
+  searchSuggestions
 } from '@/services/soundcloudApi'
 
 const DEBOUNCE_DELAY = 300
@@ -15,6 +15,7 @@ function useSearch() {
   const error = ref(null)
   const hasMore = ref(false)
   const nextHref = ref(null)
+  const activeFilter = ref('all') // 'all' | 'tracks' | 'playlists' | 'albums'
 
   let debounceTimer = null
 
@@ -54,8 +55,8 @@ function useSearch() {
       suggestions.value = []
       nextHref.value = null
 
-      const result = await search(query.value)
-      results.value = result.tracks || []
+      const result = await search(query.value, activeFilter.value)
+      results.value = result.items || []
       nextHref.value = result.nextHref
       hasMore.value = result.hasMore || false
     } catch (err) {
@@ -68,6 +69,12 @@ function useSearch() {
     }
   }
 
+  function setFilter(filter) {
+    activeFilter.value = filter
+    // Relance la recherche avec le nouveau filtre si query non vide
+    if (query.value.trim()) onSearch()
+  }
+
   async function loadMore() {
     if (!nextHref.value || isLoading.value) {
       return
@@ -78,12 +85,12 @@ function useSearch() {
       error.value = null
 
       const params = new URLSearchParams(nextHref.value.split('?')[1])
-      const offset = params.get('offset')
-      const result = await searchTracks(query.value, parseInt(offset))
+      const offset = parseInt(params.get('offset')) || results.value.length
+      const result = await searchByType(query.value, activeFilter.value, offset)
 
-      results.value.push(...(result.tracks || []))
+      results.value.push(...(result.items || []))
       nextHref.value = result.nextHref
-      hasMore.value = result.hasMore || false
+      hasMore.value = !!result.nextHref
     } catch (err) {
       error.value = 'Failed to load more results'
     } finally {
@@ -100,6 +107,7 @@ function useSearch() {
     error.value = null
     hasMore.value = false
     nextHref.value = null
+    activeFilter.value = 'all'
   }
 
   return {
@@ -110,8 +118,10 @@ function useSearch() {
     error,
     hasMore,
     nextHref,
+    activeFilter,
     onQueryInput,
     onSearch,
+    setFilter,
     loadMore,
     clearSearch
   }
