@@ -43,6 +43,16 @@
         <div class="settings-card">
           <h2 class="card-title">Apparence</h2>
 
+          <div class="setting-row">
+            <div class="setting-label">
+              <div class="label-text">Thème clair</div>
+              <div class="label-desc">Bascule entre l'apparence sombre et claire.</div>
+            </div>
+            <button class="switch" :class="{ on: theme === 'light' }" @click="toggleTheme">
+              <span class="knob" />
+            </button>
+          </div>
+
           <div class="setting-row last">
             <div class="setting-label">
               <div class="label-text">Couleur d'accentuation</div>
@@ -93,6 +103,9 @@
 
 <script setup>
 import { ref } from 'vue'
+import useTheme from '@/composables/useTheme'
+
+const { theme, toggleTheme } = useTheme()
 
 const quality = ref('high')
 const outputFolder = ref('~/Music/SC Downloader')
@@ -264,8 +277,40 @@ function setAccent(color) {
 }
 
 .folder-btn:hover {
-  background-color: #23232b;
+  background-color: var(--color-hover);
   border-color: var(--color-border-hover);
+}
+
+.switch {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  background: var(--color-border);
+  transition: background var(--transition-fast);
+}
+
+.switch.on {
+  background: var(--accent);
+}
+
+.knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left var(--transition-fast);
+}
+
+.switch.on .knob {
+  left: 19px;
 }
 
 .swatches {

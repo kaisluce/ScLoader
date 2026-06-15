@@ -48,18 +48,35 @@
           <span class="result-label">{{ resultLabel }}</span>
         </div>
 
-        <div class="view-toggle">
-          <button class="toggle-btn" :class="{ active: viewMode === 'grid' }" title="Grille" @click="viewMode = 'grid'">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
-              <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
-              <rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
-            </svg>
-          </button>
-          <button class="toggle-btn" :class="{ active: viewMode === 'list' }" title="Liste" @click="viewMode = 'list'">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" />
-            </svg>
-          </button>
+        <div class="view-controls">
+          <div class="view-toggle">
+            <button class="toggle-btn" :class="{ active: viewMode === 'grid' }" title="Grille" @click="viewMode = 'grid'">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
+                <rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
+              </svg>
+            </button>
+            <button class="toggle-btn" :class="{ active: viewMode === 'list' }" title="Liste" @click="viewMode = 'list'">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Densité de la grille : nombre de cartes par ligne -->
+          <div v-if="viewMode === 'grid'" class="density">
+            <input
+              class="density-range"
+              type="range"
+              min="2"
+              max="6"
+              step="1"
+              :value="gridCols"
+              :style="{ '--pct': densityPct + '%' }"
+              title="Cartes par ligne"
+              @input="gridCols = Number($event.target.value)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -78,7 +95,7 @@
       <LoadingSkeleton v-else-if="isLoading" :type="viewMode === 'grid' ? 'card' : 'list'" :count="viewMode === 'grid' ? 8 : 6" />
 
       <!-- Résultats grille -->
-      <div v-else-if="results.length > 0 && viewMode === 'grid'" class="results-grid">
+      <div v-else-if="results.length > 0 && viewMode === 'grid'" class="results-grid" :style="{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }">
         <template v-for="item in results">
           <PlaylistCard
             v-if="item.kind === 'playlist'"
@@ -154,6 +171,11 @@ const viewMode = ref('grid')
 const searchPerformed = ref(false)
 const inputFocused = ref(false)
 const selectedPlaylist = ref(null)
+
+const GRID_MIN = 2
+const GRID_MAX = 6
+const gridCols = ref(4)
+const densityPct = computed(() => ((gridCols.value - GRID_MIN) / (GRID_MAX - GRID_MIN)) * 100)
 
 const filters = [
   { value: 'all', label: 'Tout' },
@@ -317,7 +339,7 @@ defineEmits(['download', 'download-all'])
 
 .toolbar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   margin-top: 16px;
 }
@@ -325,6 +347,14 @@ defineEmits(['download', 'download-all'])
 .toolbar-left {
   font-size: 13.5px;
   color: var(--color-text-secondary);
+  padding-top: 9px;
+}
+
+.view-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
 }
 
 .view-toggle {
@@ -334,6 +364,48 @@ defineEmits(['download', 'download-all'])
   background-color: var(--color-surface-dark);
   border: 1px solid var(--color-border);
   border-radius: 9px;
+}
+
+.density {
+  display: flex;
+  align-items: center;
+  width: 73px; /* aligné sur la largeur du toggle (2×34 + gap + padding) */
+  padding: 0 4px;
+}
+
+.density-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(
+    to right,
+    var(--accent) var(--pct, 50%),
+    var(--color-border) var(--pct, 50%)
+  );
+  cursor: pointer;
+  outline: none;
+}
+
+.density-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+}
+
+.density-range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
 }
 
 .toggle-btn {
@@ -398,7 +470,7 @@ defineEmits(['download', 'download-all'])
 }
 
 .load-more-btn:hover {
-  background-color: #23232b;
+  background-color: var(--color-hover);
   border-color: var(--color-border-hover);
 }
 </style>

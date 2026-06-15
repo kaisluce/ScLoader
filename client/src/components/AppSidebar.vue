@@ -20,6 +20,8 @@
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="9" /><polyline points="12 7 12 12 15.5 14" />
         </svg>
+        <span v-if="newDoneCount > 0" class="badge badge-done">{{ fmtCount(newDoneCount) }}</span>
+        <span v-if="newErrorCount > 0" class="badge badge-error">{{ fmtCount(newErrorCount) }}</span>
       </router-link>
 
       <router-link :to="{ name: 'logs' }"     class="nav-item" :class="{ active: $route.name === 'logs' }"     title="Logs">
@@ -41,8 +43,25 @@
 </template>
 
 <script setup>
+import { watch } from 'vue'
 import { useRoute } from 'vue-router'
-useRoute()
+import useQueueStats from '@/composables/useQueueStats'
+
+const route = useRoute()
+const { newDoneCount, newErrorCount, resetBadges } = useQueueStats()
+
+// Remet les badges à zéro à chaque arrivée sur /history
+watch(
+  () => route.path,
+  (path) => {
+    if (path === '/history') resetBadges()
+  },
+  { immediate: true }
+)
+
+function fmtCount(n) {
+  return n > 99 ? '99+' : String(n)
+}
 </script>
 
 <style scoped>
@@ -82,6 +101,7 @@ useRoute()
 }
 
 .nav-item {
+  position: relative;
   width: 42px;
   height: 42px;
   border-radius: 11px;
@@ -95,8 +115,36 @@ useRoute()
   text-decoration: none;
 }
 
+/* ---------- Badges de comptage (Historique) ---------- */
+.badge {
+  position: absolute;
+  top: -2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  border: 2px solid var(--color-surface);
+  z-index: 2;
+}
+
+.badge-done {
+  left: -2px;
+  background-color: #22c55e;
+}
+
+.badge-error {
+  right: -2px;
+  background-color: #ef4444;
+}
+
 .nav-item:hover {
-  background: #22222a;
+  background: var(--color-hover);
   color: var(--color-text);
 }
 

@@ -166,8 +166,9 @@ const { logs, autoScroll, clearLogs, formatTime } = useLogs(logContainer)
   align-items: baseline;
 }
 
+/* Le terminal reste sombre dans les deux thèmes → couleurs de texte claires fixes. */
 .time {
-  color: var(--color-text-muted);
+  color: #6f6f80;
   flex-shrink: 0;
 }
 
@@ -177,14 +178,13 @@ const { logs, autoScroll, clearLogs, formatTime } = useLogs(logContainer)
   width: 62px;
 }
 
-/* Level colors intentionally hardcoded — no CSS variable for these */
-.level.info    { color: var(--color-text); }
+.level.info    { color: #d8d8e0; }
 .level.success { color: #22c55e; }
 .level.warn    { color: #eab308; }
 .level.error   { color: #ef4444; }
 
 .message {
-  color: var(--color-text);
+  color: #c2c2cc;
   flex: 1;
   min-width: 0;
   word-break: break-word;
@@ -195,7 +195,7 @@ const { logs, autoScroll, clearLogs, formatTime } = useLogs(logContainer)
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--color-text-muted);
+  color: #6f6f80;
   font-family: var(--font-family-base);
   font-size: var(--font-size-md);
 }

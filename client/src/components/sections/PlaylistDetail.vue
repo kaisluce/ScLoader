@@ -27,7 +27,7 @@
     </header>
 
     <!-- Corps -->
-    <div class="detail-body sc-scroll">
+    <div class="detail-body">
       <div class="hero">
         <div class="hero-art">
           <img v-if="playlist.artworkUrl" :src="playlist.artworkUrl" :alt="playlist.title" class="hero-img" />
@@ -53,12 +53,14 @@
       </div>
 
       <div class="tracks-panel">
-        <PlaylistTrackRows
-          :tracks="tracks"
-          :loading="loading"
-          :error="error"
-          @add="track => $emit('download', track)"
-        />
+        <div class="tracks-scroll sc-scroll">
+          <PlaylistTrackRows
+            :tracks="tracks"
+            :loading="loading"
+            :error="error"
+            @add="track => $emit('download', track)"
+          />
+        </div>
       </div>
     </div>
   </section>
@@ -101,23 +103,11 @@ const releaseYear = computed(() => {
 
 const tracks = computed(() => {
   if (loadedPlaylist.value) return loadedPlaylist.value.tracks
-  return isComplete(props.playlist) ? props.playlist.tracks : []
+  return []
 })
-
-function isComplete(pl) {
-  return (
-    pl.tracks.length > 0 &&
-    pl.tracks.length >= pl.trackCount &&
-    pl.tracks.every(t => t.transcodings && t.transcodings.length > 0)
-  )
-}
 
 async function ensureTracks() {
   if (loadedPlaylist.value) return loadedPlaylist.value
-  if (isComplete(props.playlist)) {
-    loadedPlaylist.value = props.playlist
-    return props.playlist
-  }
   loading.value = true
   error.value = null
   try {
@@ -285,7 +275,10 @@ async function addAll() {
   position: relative;
   z-index: 2;
   flex: 1;
-  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   padding: 32px 40px 40px;
 }
 
@@ -404,11 +397,19 @@ async function addAll() {
 }
 
 .tracks-panel {
+  flex: 1;
+  min-height: 0;
   background-color: color-mix(in srgb, var(--color-surface) 60%, transparent);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--spacing-sm);
+}
+
+.tracks-scroll {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
 }
 </style>

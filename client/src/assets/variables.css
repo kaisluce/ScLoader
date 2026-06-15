@@ -13,6 +13,9 @@
   --color-border:        #2a2a35;
   --color-border-hover:  #3a3a45;
 
+  /* Hover surfaces (lignes, items) */
+  --color-hover:         #23232b;
+
   /* Text */
   --color-text:           #f0f0f0;
   --color-text-secondary: #9090a0;
@@ -72,6 +75,28 @@
   --z-sticky:   20;
   --z-modal:    100;
   --z-tooltip:  110;
+}
+
+/* ===================== Thème clair ===================== */
+:root[data-theme='light'] {
+  --color-bg:            #f4f4f7;
+  --color-surface:       #ffffff;
+  --color-surface-dark:  #ececf0;
+  --color-surface-alt:   #fafafb;
+
+  --color-border:        #e3e3ea;
+  --color-border-hover:  #cfcfd8;
+
+  --color-hover:         #ececf1;
+
+  --color-text:           #1a1a22;
+  --color-text-secondary: #5a5a68;
+  --color-text-muted:     #8a8a98;
+
+  /* Ombres plus légères en clair */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.12);
 }
 
 *, *::before, *::after {

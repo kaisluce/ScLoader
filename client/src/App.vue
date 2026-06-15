@@ -5,15 +5,19 @@
       <RouterView />
     </main>
     <MiniPlayer />
+    <DownloadStatusIcon />
   </div>
 </template>
 
 <script setup>
 import AppSidebar from './components/AppSidebar.vue'
 import MiniPlayer from './components/MiniPlayer.vue'
+import DownloadStatusIcon from './components/DownloadStatusIcon.vue'
 import usePlayer from './composables/usePlayer'
+import useTheme from './composables/useTheme'
 
 const { state } = usePlayer()
+useTheme() // applique le thème mémorisé dès le démarrage
 </script>
 
 <style scoped>

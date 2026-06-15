@@ -184,7 +184,7 @@ function statusColor(status) {
 }
 
 .history-item:last-child { border-bottom: none; }
-.history-item:hover { background: #23232b; }
+.history-item:hover { background: var(--color-hover); }
 
 .thumb {
   width: 48px;

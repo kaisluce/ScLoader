@@ -177,8 +177,9 @@ async function resolveUrl(url) {
         hasMore: false
       }
     } else if (data.kind === 'playlist') {
+      const playlist = await fetchPlaylist(data.id)
       return {
-        tracks: (data.tracks || []).map(normalizeTrack),
+        tracks: playlist.tracks,
         nextHref: null,
         hasMore: false
       }
@@ -197,16 +198,22 @@ async function fetchTracksByIds(ids) {
       return []
     }
 
-    const params = buildParams({ ids: ids.join(',') })
-    const url = `${BASE_URL}/tracks?${params.toString()}`
+    const fetched = []
 
-    const response = await fetch(url)
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`)
+    for (const id of ids) {
+      const params = buildParams({ ids: String(id) })
+      const url = `${BASE_URL}/tracks?${params.toString()}`
+
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
+
+      const data = await response.json()
+      fetched.push(...(data.collection || []).map(normalizeTrack))
     }
 
-    const data = await response.json()
-    return (data.collection || []).map(normalizeTrack)
+    return fetched
   } catch (error) {
     console.error('Error fetching tracks by IDs:', error)
     throw error

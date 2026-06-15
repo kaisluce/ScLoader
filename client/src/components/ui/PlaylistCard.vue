@@ -267,7 +267,7 @@ async function addAll() {
 }
 
 .playlist-row:hover {
-  background-color: #23232b;
+  background-color: var(--color-hover);
 }
 
 .thumb {
