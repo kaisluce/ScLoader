@@ -200,8 +200,9 @@ async function fetchTracksByIds(ids) {
 
     const fetched = []
 
-    for (const id of ids) {
-      const params = buildParams({ ids: String(id) })
+    for (let i = 0; i < ids.length; i += 50) {
+      const chunk = ids.slice(i, i + 50)
+      const params = buildParams({ ids: chunk.join(',') })
       const url = `${BASE_URL}/tracks?${params.toString()}`
 
       const response = await fetch(url)
@@ -210,7 +211,7 @@ async function fetchTracksByIds(ids) {
       }
 
       const data = await response.json()
-      fetched.push(...(data.collection || []).map(normalizeTrack))
+      fetched.push(...(Array.isArray(data) ? data : (data.collection || [])).map(normalizeTrack))
     }
 
     return fetched

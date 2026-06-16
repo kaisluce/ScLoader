@@ -106,8 +106,23 @@ const tracks = computed(() => {
   return []
 })
 
+function embeddedTracksComplete() {
+  const pl = props.playlist
+  return (
+    pl.tracks?.length > 0 &&
+    pl.tracks.length >= pl.trackCount &&
+    pl.tracks.every(t => t.transcodings && t.transcodings.length > 0)
+  )
+}
+
 async function ensureTracks() {
   if (loadedPlaylist.value) return loadedPlaylist.value
+
+  if (embeddedTracksComplete()) {
+    loadedPlaylist.value = props.playlist
+    return loadedPlaylist.value
+  }
+
   loading.value = true
   error.value = null
   try {
