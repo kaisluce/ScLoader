@@ -1,0 +1,29 @@
+{
+  "name": "spotify-downloader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaisluce/ScLoader.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kaisluce/ScLoader/issues"
+  },
+  "homepage": "https://github.com/kaisluce/ScLoader#readme",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7"
+  },
+  "lint-staged": {
+    "client/src/**/*.{vue,js}": "eslint --fix"
+  }
+}
