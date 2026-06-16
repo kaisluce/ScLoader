@@ -6,12 +6,19 @@
         :src="track.artworkUrl"
         :alt="track.title"
         class="image"
-      />
-      <div v-else class="placeholder">
+      >
+      <div
+        v-else
+        class="placeholder"
+      >
         <Music :size="40" />
       </div>
 
-      <Badge v-if="track.policy !== 'ALLOW'" :policy="track.policy" class="badge-overlay" />
+      <Badge
+        v-if="track.policy !== 'ALLOW'"
+        :policy="track.policy"
+        class="badge-overlay"
+      />
 
       <button
         class="preview-btn"
@@ -19,23 +26,39 @@
         :title="isCurrent && state.isPlaying ? 'Pause' : 'Écouter un extrait'"
         @click.stop="onPreview"
       >
-        <Pause v-if="isCurrent && state.isPlaying" :size="16" />
-        <Play v-else :size="16" />
+        <Pause
+          v-if="isCurrent && state.isPlaying"
+          :size="16"
+        />
+        <Play
+          v-else
+          :size="16"
+        />
       </button>
 
       <span class="duration">{{ formatDuration(track.duration) }}</span>
 
       <div class="overlay">
-        <button class="download-btn" @click="$emit('download', track)">
-          <Download :size="15" />
+        <button
+          class="download-btn"
+          @click="$emit('download', track)"
+        >
+          <Download :size="16" />
           Télécharger
         </button>
       </div>
     </div>
 
     <div class="info">
-      <div class="title" :title="track.title">{{ track.title }}</div>
-      <div class="artist">{{ track.artist }}</div>
+      <div
+        class="title"
+        :title="track.title"
+      >
+        {{ track.title }}
+      </div>
+      <div class="artist">
+        {{ track.artist }}
+      </div>
     </div>
   </div>
 </template>

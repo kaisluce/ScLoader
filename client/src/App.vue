@@ -1,7 +1,10 @@
 <template>
   <div class="app-layout">
     <AppSidebar />
-    <main class="main-content" :class="{ 'with-player': state.currentTrack }">
+    <main
+      class="main-content"
+      :class="{ 'with-player': state.currentTrack }"
+    >
       <RouterView />
     </main>
     <MiniPlayer />

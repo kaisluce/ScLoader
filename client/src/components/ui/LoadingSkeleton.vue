@@ -1,9 +1,23 @@
 <template>
-  <div v-if="type === 'card'" class="skeleton-grid">
-    <div v-for="i in count" :key="i" class="skeleton-card" />
+  <div
+    v-if="type === 'card'"
+    class="skeleton-grid"
+  >
+    <div
+      v-for="i in count"
+      :key="i"
+      class="skeleton-card"
+    />
   </div>
-  <div v-else class="skeleton-list">
-    <div v-for="i in count" :key="i" class="skeleton-item" />
+  <div
+    v-else
+    class="skeleton-list"
+  >
+    <div
+      v-for="i in count"
+      :key="i"
+      class="skeleton-item"
+    />
   </div>
 </template>
 

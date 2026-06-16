@@ -1,20 +1,27 @@
 <template>
   <section class="settings-section">
     <div class="settings-header">
-      <h1 class="title">Paramètres</h1>
+      <h1 class="title">
+        Paramètres
+      </h1>
     </div>
 
     <div class="settings-body sc-scroll">
       <div class="settings-stack">
-
         <!-- Téléchargement -->
         <div class="settings-card">
-          <h2 class="card-title">Téléchargement</h2>
+          <h2 class="card-title">
+            Téléchargement
+          </h2>
 
           <div class="setting-row">
             <div class="setting-label">
-              <div class="label-text">Qualité audio</div>
-              <div class="label-desc">Définit le débit visé pour les nouveaux téléchargements.</div>
+              <div class="label-text">
+                Qualité audio
+              </div>
+              <div class="label-desc">
+                Définit le débit visé pour les nouveaux téléchargements.
+              </div>
             </div>
             <div class="quality-buttons">
               <button
@@ -23,14 +30,20 @@
                 class="quality-btn"
                 :class="{ active: settingsState.quality === q.value }"
                 @click="setSetting('quality', q.value)"
-              >{{ q.label }}</button>
+              >
+                {{ q.label }}
+              </button>
             </div>
           </div>
 
           <div class="setting-row">
             <div class="setting-label">
-              <div class="label-text">Dossier de sortie</div>
-              <div class="label-desc">Emplacement des fichiers téléchargés.</div>
+              <div class="label-text">
+                Dossier de sortie
+              </div>
+              <div class="label-desc">
+                Emplacement des fichiers téléchargés.
+              </div>
             </div>
             <div class="folder-selector">
               <input
@@ -38,55 +51,94 @@
                 readonly
                 :value="settingsState.outputDir || '~/Music/SC Downloader'"
                 class="folder-input"
-              />
-              <button class="folder-btn" @click="browseFolder">Parcourir</button>
+              >
+              <button
+                class="folder-btn"
+                @click="browseFolder"
+              >
+                Parcourir
+              </button>
             </div>
           </div>
 
           <div class="setting-row">
             <div class="setting-label">
-              <div class="label-text">Téléchargements simultanés</div>
-              <div class="label-desc">Nombre maximum de fichiers téléchargés en parallèle.</div>
+              <div class="label-text">
+                Téléchargements simultanés
+              </div>
+              <div class="label-desc">
+                Nombre maximum de fichiers téléchargés en parallèle.
+              </div>
             </div>
             <div class="concurrent-control">
-              <button class="step-btn" :disabled="settingsState.maxConcurrent <= 1" @click="setSetting('maxConcurrent', settingsState.maxConcurrent - 1)">−</button>
+              <button
+                class="step-btn"
+                :disabled="settingsState.maxConcurrent <= 1"
+                @click="setSetting('maxConcurrent', settingsState.maxConcurrent - 1)"
+              >
+                −
+              </button>
               <span class="concurrent-value">{{ settingsState.maxConcurrent }}</span>
-              <button class="step-btn" :disabled="settingsState.maxConcurrent >= 10" @click="setSetting('maxConcurrent', settingsState.maxConcurrent + 1)">+</button>
+              <button
+                class="step-btn"
+                :disabled="settingsState.maxConcurrent >= 10"
+                @click="setSetting('maxConcurrent', settingsState.maxConcurrent + 1)"
+              >
+                +
+              </button>
             </div>
           </div>
 
           <div class="setting-row last">
             <div class="setting-label">
-              <div class="label-text">Modèle de nom de fichier</div>
-              <div class="label-desc">Variables disponibles : {artist}, {title}, {year}.</div>
+              <div class="label-text">
+                Modèle de nom de fichier
+              </div>
+              <div class="label-desc">
+                Variables disponibles : {artist}, {title}, {year}.
+              </div>
             </div>
             <input
               type="text"
               class="template-input"
               :value="settingsState.filenameTemplate"
               @change="setSetting('filenameTemplate', $event.target.value)"
-            />
+            >
           </div>
         </div>
 
         <!-- Apparence -->
         <div class="settings-card">
-          <h2 class="card-title">Apparence</h2>
+          <h2 class="card-title">
+            Apparence
+          </h2>
 
           <div class="setting-row">
             <div class="setting-label">
-              <div class="label-text">Thème clair</div>
-              <div class="label-desc">Bascule entre l'apparence sombre et claire.</div>
+              <div class="label-text">
+                Thème clair
+              </div>
+              <div class="label-desc">
+                Bascule entre l'apparence sombre et claire.
+              </div>
             </div>
-            <button class="switch" :class="{ on: theme === 'light' }" @click="toggleTheme">
+            <button
+              class="switch"
+              :class="{ on: theme === 'light' }"
+              @click="toggleTheme"
+            >
               <span class="knob" />
             </button>
           </div>
 
           <div class="setting-row last">
             <div class="setting-label">
-              <div class="label-text">Couleur d'accentuation</div>
-              <div class="label-desc">S'applique instantanément à toute l'application.</div>
+              <div class="label-text">
+                Couleur d'accentuation
+              </div>
+              <div class="label-desc">
+                S'applique instantanément à toute l'application.
+              </div>
             </div>
             <div class="swatches">
               <button
@@ -108,24 +160,42 @@
 
         <!-- Comportement -->
         <div class="settings-card">
-          <h2 class="card-title">Comportement</h2>
+          <h2 class="card-title">
+            Comportement
+          </h2>
 
           <div class="setting-row">
             <div class="setting-label">
-              <div class="label-text">Notifications</div>
-              <div class="label-desc">Affiche une notification à la fin de chaque téléchargement.</div>
+              <div class="label-text">
+                Notifications
+              </div>
+              <div class="label-desc">
+                Affiche une notification à la fin de chaque téléchargement.
+              </div>
             </div>
-            <button class="switch" :class="{ on: settingsState.showNotifications }" @click="setSetting('showNotifications', !settingsState.showNotifications)">
+            <button
+              class="switch"
+              :class="{ on: settingsState.showNotifications }"
+              @click="setSetting('showNotifications', !settingsState.showNotifications)"
+            >
               <span class="knob" />
             </button>
           </div>
 
           <div class="setting-row last">
             <div class="setting-label">
-              <div class="label-text">Vider la file à la fermeture</div>
-              <div class="label-desc">Annule les téléchargements en cours quand l'app se ferme.</div>
+              <div class="label-text">
+                Vider la file à la fermeture
+              </div>
+              <div class="label-desc">
+                Annule les téléchargements en cours quand l'app se ferme.
+              </div>
             </div>
-            <button class="switch" :class="{ on: settingsState.clearQueueOnExit }" @click="setSetting('clearQueueOnExit', !settingsState.clearQueueOnExit)">
+            <button
+              class="switch"
+              :class="{ on: settingsState.clearQueueOnExit }"
+              @click="setSetting('clearQueueOnExit', !settingsState.clearQueueOnExit)"
+            >
               <span class="knob" />
             </button>
           </div>
@@ -133,23 +203,65 @@
 
         <!-- À propos -->
         <div class="settings-card">
-          <h2 class="card-title">À propos</h2>
+          <h2 class="card-title">
+            À propos
+          </h2>
           <div class="about">
             <div class="about-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round">
-                <line x1="5"    y1="10" x2="5"    y2="14" />
-                <line x1="9.5"  y1="7"  x2="9.5"  y2="17" />
-                <line x1="14"   y1="4"  x2="14"   y2="20" />
-                <line x1="18.5" y1="9"  x2="18.5" y2="15" />
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--accent)"
+                stroke-width="2.2"
+                stroke-linecap="round"
+              >
+                <line
+                  x1="5"
+                  y1="10"
+                  x2="5"
+                  y2="14"
+                />
+                <line
+                  x1="9.5"
+                  y1="7"
+                  x2="9.5"
+                  y2="17"
+                />
+                <line
+                  x1="14"
+                  y1="4"
+                  x2="14"
+                  y2="20"
+                />
+                <line
+                  x1="18.5"
+                  y1="9"
+                  x2="18.5"
+                  y2="15"
+                />
               </svg>
             </div>
             <div class="about-text">
-              <div class="app-name">SC Downloader</div>
-              <div class="app-version">Version 1.4.0</div>
+              <div class="app-name">
+                SC Downloader
+              </div>
+              <div class="app-version">
+                Version 1.4.0
+              </div>
             </div>
-            <a href="#" class="github-link">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.5 2 2 6.6 2 12.3c0 4.5 2.9 8.4 6.8 9.7.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.4-3.4-1.4-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5 3.9-1.3 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2z"/>
+            <a
+              href="#"
+              class="github-link"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M12 2C6.5 2 2 6.6 2 12.3c0 4.5 2.9 8.4 6.8 9.7.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.4-3.4-1.4-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5 3.9-1.3 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2z" />
               </svg>
               GitHub
             </a>
@@ -158,16 +270,26 @@
 
         <!-- Danger zone -->
         <div class="settings-card danger-card">
-          <h2 class="card-title">Zone de danger</h2>
+          <h2 class="card-title">
+            Zone de danger
+          </h2>
           <div class="setting-row last">
             <div class="setting-label">
-              <div class="label-text">Réinitialiser les paramètres</div>
-              <div class="label-desc">Remet tous les paramètres à leurs valeurs par défaut.</div>
+              <div class="label-text">
+                Réinitialiser les paramètres
+              </div>
+              <div class="label-desc">
+                Remet tous les paramètres à leurs valeurs par défaut.
+              </div>
             </div>
-            <button class="reset-btn" @click="onReset">Réinitialiser</button>
+            <button
+              class="reset-btn"
+              @click="onReset"
+            >
+              Réinitialiser
+            </button>
           </div>
         </div>
-
       </div>
     </div>
   </section>

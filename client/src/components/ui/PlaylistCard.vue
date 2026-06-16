@@ -6,19 +6,36 @@
     @click="$emit('open', playlist)"
   >
     <div class="artwork">
-      <img v-if="playlist.artworkUrl" :src="playlist.artworkUrl" :alt="playlist.title" class="image" />
-      <div v-else class="placeholder">
+      <img
+        v-if="playlist.artworkUrl"
+        :src="playlist.artworkUrl"
+        :alt="playlist.title"
+        class="image"
+      >
+      <div
+        v-else
+        class="placeholder"
+      >
         <ListMusic :size="40" />
       </div>
 
-      <span class="badge" :class="badgeClass">{{ badgeLabel }}</span>
+      <span
+        class="badge"
+        :class="badgeClass"
+      >{{ badgeLabel }}</span>
 
       <div class="overlay">
-        <button class="overlay-btn primary" @click.stop="addAll">
+        <button
+          class="overlay-btn primary"
+          @click.stop="addAll"
+        >
           <Download :size="14" />
           Tout ajouter
         </button>
-        <button class="overlay-btn" @click.stop="$emit('open', playlist)">
+        <button
+          class="overlay-btn"
+          @click.stop="$emit('open', playlist)"
+        >
           <ListMusic :size="14" />
           Voir les titres
         </button>
@@ -26,39 +43,79 @@
     </div>
 
     <div class="info">
-      <div class="title" :title="playlist.title">{{ playlist.title }}</div>
-      <div class="artist">{{ playlist.artist }}</div>
+      <div
+        class="title"
+        :title="playlist.title"
+      >
+        {{ playlist.title }}
+      </div>
+      <div class="artist">
+        {{ playlist.artist }}
+      </div>
       <div class="meta">
         <span>{{ playlist.trackCount }} titres</span>
-        <span v-if="playlist.isAlbum && releaseYear" class="dot">·</span>
+        <span
+          v-if="playlist.isAlbum && releaseYear"
+          class="dot"
+        >·</span>
         <span v-if="playlist.isAlbum && releaseYear">{{ releaseYear }}</span>
       </div>
     </div>
   </div>
 
   <!-- ===================== MODE LISTE ===================== -->
-  <div v-else class="playlist-row" @click="$emit('open', playlist)">
+  <div
+    v-else
+    class="playlist-row"
+    @click="$emit('open', playlist)"
+  >
     <div class="thumb">
-      <img v-if="playlist.artworkUrl" :src="playlist.artworkUrl" :alt="playlist.title" class="image" />
-      <div v-else class="placeholder">
+      <img
+        v-if="playlist.artworkUrl"
+        :src="playlist.artworkUrl"
+        :alt="playlist.title"
+        class="image"
+      >
+      <div
+        v-else
+        class="placeholder"
+      >
         <ListMusic :size="20" />
       </div>
     </div>
 
     <div class="row-info">
-      <div class="title" :title="playlist.title">{{ playlist.title }}</div>
-      <div class="artist">{{ playlist.artist }}</div>
+      <div
+        class="title"
+        :title="playlist.title"
+      >
+        {{ playlist.title }}
+      </div>
+      <div class="artist">
+        {{ playlist.artist }}
+      </div>
     </div>
 
-    <span class="badge" :class="badgeClass">{{ badgeLabel }}</span>
+    <span
+      class="badge"
+      :class="badgeClass"
+    >{{ badgeLabel }}</span>
 
     <span class="track-count">{{ playlist.trackCount }} titres</span>
 
     <div class="row-actions">
-      <button class="row-btn" title="Tout ajouter" @click.stop="addAll">
+      <button
+        class="row-btn"
+        title="Tout ajouter"
+        @click.stop="addAll"
+      >
         <Download :size="16" />
       </button>
-      <button class="row-btn" title="Voir les titres" @click.stop="$emit('open', playlist)">
+      <button
+        class="row-btn"
+        title="Voir les titres"
+        @click.stop="$emit('open', playlist)"
+      >
         <ListMusic :size="16" />
       </button>
     </div>

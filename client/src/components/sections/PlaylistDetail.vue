@@ -1,16 +1,30 @@
 <template>
   <section class="detail">
-    <div v-if="playlist.artworkUrl" class="detail-bg" :style="bgStyle" />
+    <div
+      v-if="playlist.artworkUrl"
+      class="detail-bg"
+      :style="bgStyle"
+    />
 
     <!-- Header fixe -->
     <header class="detail-header">
-      <button class="btn-back" @click="$emit('back')">
+      <button
+        class="btn-back"
+        @click="$emit('back')"
+      >
         <ChevronLeft :size="20" />
         <span>Retour</span>
       </button>
 
-      <div class="search-mini" :class="{ open: miniOpen }">
-        <button class="loupe" title="Nouvelle recherche" @click="focusMini">
+      <div
+        class="search-mini"
+        :class="{ open: miniOpen }"
+      >
+        <button
+          class="loupe"
+          title="Nouvelle recherche"
+          @click="focusMini"
+        >
           <Search :size="20" />
         </button>
         <input
@@ -22,33 +36,60 @@
           @keyup.enter="submitSearch"
           @focus="miniOpen = true"
           @blur="miniOpen = false"
-        />
+        >
       </div>
     </header>
 
     <!-- Corps -->
     <div class="detail-body">
-
       <!-- ═══ Hero animé ═══ -->
-      <div class="hero" :style="{ height: heroHeightStyle }">
-
+      <div
+        class="hero"
+        :style="{ height: heroHeightStyle }"
+      >
         <!-- Artwork (rétrécit) -->
-        <div class="hero-art" :style="{ width: artworkSizeStyle, height: artworkSizeStyle }">
-          <img v-if="playlist.artworkUrl" :src="playlist.artworkUrl" :alt="playlist.title" class="hero-img" />
-          <div v-else class="hero-art-placeholder"><ListMusic :size="36" /></div>
+        <div
+          class="hero-art"
+          :style="{ width: artworkSizeStyle, height: artworkSizeStyle }"
+        >
+          <img
+            v-if="playlist.artworkUrl"
+            :src="playlist.artworkUrl"
+            :alt="playlist.title"
+            class="hero-img"
+          >
+          <div
+            v-else
+            class="hero-art-placeholder"
+          >
+            <ListMusic :size="36" />
+          </div>
         </div>
 
         <!-- Zone info : contient les deux couches superposées -->
         <div class="hero-info-wrap">
-
           <!-- COUCHE EXPANDED (disparaît au scroll) -->
-          <div class="hero-expanded" :style="{ opacity: expandedOpacity }" :inert="isCompact">
-            <span class="badge" :class="badgeClass">{{ badgeLabel }}</span>
-            <h1 class="hero-title">{{ playlist.title }}</h1>
-            <div class="hero-artist">{{ playlist.artist }}</div>
+          <div
+            class="hero-expanded"
+            :style="{ opacity: expandedOpacity }"
+            :inert="isCompact"
+          >
+            <span
+              class="badge"
+              :class="badgeClass"
+            >{{ badgeLabel }}</span>
+            <h1 class="hero-title">
+              {{ playlist.title }}
+            </h1>
+            <div class="hero-artist">
+              {{ playlist.artist }}
+            </div>
             <div class="hero-meta">
               <span>{{ playlist.trackCount }} titres</span>
-              <span v-if="playlist.isAlbum && releaseYear" class="dot">·</span>
+              <span
+                v-if="playlist.isAlbum && releaseYear"
+                class="dot"
+              >·</span>
               <span v-if="playlist.isAlbum && releaseYear">{{ releaseYear }}</span>
             </div>
             <button
@@ -62,7 +103,11 @@
           </div>
 
           <!-- COUCHE COMPACT (apparaît au scroll) -->
-          <div class="hero-compact" :style="{ opacity: compactOpacity }" :inert="!isCompact">
+          <div
+            class="hero-compact"
+            :style="{ opacity: compactOpacity }"
+            :inert="!isCompact"
+          >
             <div class="compact-text">
               <span class="compact-title">{{ playlist.title }}</span>
               <span class="compact-sub">{{ playlist.artist }} · {{ playlist.trackCount }} titres</span>
@@ -76,13 +121,15 @@
               <Download :size="17" />
             </button>
           </div>
-
         </div>
       </div>
 
       <!-- Tracks -->
       <div class="tracks-panel">
-        <div class="tracks-scroll sc-scroll" ref="scrollEl">
+        <div
+          ref="scrollEl"
+          class="tracks-scroll sc-scroll"
+        >
           <PlaylistTrackRows
             :tracks="tracks"
             :loading="loading"
@@ -91,7 +138,6 @@
           />
         </div>
       </div>
-
     </div>
   </section>
 </template>

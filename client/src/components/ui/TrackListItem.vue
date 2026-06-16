@@ -6,8 +6,11 @@
         :src="track.artworkUrl"
         :alt="track.title"
         class="image"
-      />
-      <div v-else class="placeholder">
+      >
+      <div
+        v-else
+        class="placeholder"
+      >
         <Music :size="20" />
       </div>
 
@@ -17,25 +20,41 @@
         :title="isCurrent && state.isPlaying ? 'Pause' : 'Écouter un extrait'"
         @click.stop="onPreview"
       >
-        <Pause v-if="isCurrent && state.isPlaying" :size="16" />
-        <Play v-else :size="16" />
+        <Pause
+          v-if="isCurrent && state.isPlaying"
+          :size="16"
+        />
+        <Play
+          v-else
+          :size="16"
+        />
       </button>
     </div>
 
     <div class="info">
-      <div class="title" :title="track.title">{{ track.title }}</div>
-      <div class="artist">{{ track.artist }}</div>
+      <div
+        class="title"
+        :title="track.title"
+      >
+        {{ track.title }}
+      </div>
+      <div class="artist">
+        {{ track.artist }}
+      </div>
     </div>
 
-    <Badge v-if="track.policy !== 'ALLOW'" :policy="track.policy" />
+    <Badge
+      v-if="track.policy !== 'ALLOW'"
+      :policy="track.policy"
+    />
 
     <span class="duration">{{ formatDuration(track.duration) }}</span>
 
     <button
       class="download-btn"
-      @click="$emit('download', track)"
       :disabled="!track.streamable"
       :title="!track.streamable ? 'Stream not available' : 'Add to download queue'"
+      @click="$emit('download', track)"
     >
       <Download :size="16" />
     </button>

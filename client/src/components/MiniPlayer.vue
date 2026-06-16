@@ -1,5 +1,8 @@
 <template>
-  <div v-if="state.currentTrack" class="mini-player">
+  <div
+    v-if="state.currentTrack"
+    class="mini-player"
+  >
     <!-- Artwork + infos -->
     <div class="track-meta">
       <div class="artwork">
@@ -8,28 +11,55 @@
           :src="state.currentTrack.artworkUrl"
           :alt="state.currentTrack.title"
           class="art-img"
-        />
-        <div v-else class="art-placeholder">
+        >
+        <div
+          v-else
+          class="art-placeholder"
+        >
           <Music :size="18" />
         </div>
       </div>
       <div class="info">
-        <div class="title" :title="state.currentTrack.title">
+        <div
+          class="title"
+          :title="state.currentTrack.title"
+        >
           {{ state.isLoading ? 'Chargement...' : state.currentTrack.title }}
         </div>
-        <div class="artist">{{ state.currentTrack.artist }}</div>
+        <div class="artist">
+          {{ state.currentTrack.artist }}
+        </div>
       </div>
     </div>
 
     <!-- Contrôles + progression -->
     <div class="center">
-      <div v-if="state.isUnavailable" class="unavailable">Preview indisponible</div>
+      <div
+        v-if="state.isUnavailable"
+        class="unavailable"
+      >
+        Preview indisponible
+      </div>
 
       <template v-else>
-        <button class="play-btn" :title="state.isPlaying ? 'Pause' : 'Lecture'" @click="toggle">
-          <Loader2 v-if="state.isLoading" :size="20" class="spin" />
-          <Pause v-else-if="state.isPlaying" :size="20" />
-          <Play v-else :size="20" />
+        <button
+          class="play-btn"
+          :title="state.isPlaying ? 'Pause' : 'Lecture'"
+          @click="toggle"
+        >
+          <Loader2
+            v-if="state.isLoading"
+            :size="20"
+            class="spin"
+          />
+          <Pause
+            v-else-if="state.isPlaying"
+            :size="20"
+          />
+          <Play
+            v-else
+            :size="20"
+          />
         </button>
 
         <span class="time">{{ fmt(state.currentTime) }}</span>
@@ -43,7 +73,7 @@
           :style="{ '--pct': progressPct + '%' }"
           :disabled="state.isLoading || !state.duration"
           @input="onSeek"
-        />
+        >
         <span class="time">{{ fmt(state.duration) }}</span>
       </template>
     </div>
@@ -60,11 +90,15 @@
         :value="state.volume"
         :style="{ '--pct': volumePct + '%' }"
         @input="onVolume"
-      />
+      >
     </div>
 
     <!-- Fermer -->
-    <button class="close-btn" title="Fermer" @click="close">
+    <button
+      class="close-btn"
+      title="Fermer"
+      @click="close"
+    >
       <X :size="18" />
     </button>
   </div>

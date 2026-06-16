@@ -1,7 +1,9 @@
 <template>
   <section class="logs-section">
     <div class="logs-header">
-      <h1 class="title">Logs</h1>
+      <h1 class="title">
+        Logs
+      </h1>
       <div class="controls">
         <div class="autoscroll-control">
           <span class="label">Auto-scroll</span>
@@ -13,8 +15,20 @@
             <span class="knob" />
           </button>
         </div>
-        <button class="clear-btn" @click="clearLogs">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button
+          class="clear-btn"
+          @click="clearLogs"
+        >
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <polyline points="3 6 5 6 21 6" />
             <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
           </svg>
@@ -24,15 +38,28 @@
     </div>
 
     <div class="logs-body">
-      <div ref="logContainer" class="logs-viewer sc-scroll">
+      <div
+        ref="logContainer"
+        class="logs-viewer sc-scroll"
+      >
         <template v-if="logs.length > 0">
-          <div v-for="entry in logs" :key="entry.id" class="log-line">
+          <div
+            v-for="entry in logs"
+            :key="entry.id"
+            class="log-line"
+          >
             <span class="time">{{ formatTime(entry.timestamp) }}</span>
-            <span class="level" :class="entry.level.toLowerCase()">{{ entry.level }}</span>
+            <span
+              class="level"
+              :class="entry.level.toLowerCase()"
+            >{{ entry.level }}</span>
             <span class="message">{{ entry.message }}</span>
           </div>
         </template>
-        <div v-else class="empty-logs">
+        <div
+          v-else
+          class="empty-logs"
+        >
           Aucun log pour l'instant.
         </div>
       </div>

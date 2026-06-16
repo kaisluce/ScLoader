@@ -1,10 +1,17 @@
 <template>
   <div class="empty-state">
     <div class="icon">
-      <component :is="icon" :size="44" />
+      <component
+        :is="icon"
+        :size="44"
+      />
     </div>
-    <h3 class="title">{{ title }}</h3>
-    <p class="description">{{ description }}</p>
+    <h3 class="title">
+      {{ title }}
+    </h3>
+    <p class="description">
+      {{ description }}
+    </p>
   </div>
 </template>
 

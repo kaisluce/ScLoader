@@ -10,18 +10,45 @@
       <span class="tooltip">{{ summary }}</span>
 
       <!-- Résolution / en attente : spinner -->
-      <svg v-if="mode === 'resolving'" class="spinner" width="24" height="24" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="44 18" />
+      <svg
+        v-if="mode === 'resolving'"
+        class="spinner"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          cx="12"
+          cy="12"
+          r="9"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-dasharray="44 18"
+        />
       </svg>
 
       <!-- Téléchargement / conversion : bounce -->
-      <DownloadCloud v-else-if="mode === 'downloading'" class="bounce" :size="24" />
+      <DownloadCloud
+        v-else-if="mode === 'downloading'"
+        class="bounce"
+        :size="24"
+      />
 
       <!-- Tout terminé OK -->
-      <CheckCircle v-else-if="mode === 'done'" class="pop" :size="26" />
+      <CheckCircle
+        v-else-if="mode === 'done'"
+        class="pop"
+        :size="26"
+      />
 
       <!-- Au moins une erreur -->
-      <XCircle v-else-if="mode === 'error'" class="pop" :size="26" />
+      <XCircle
+        v-else-if="mode === 'error'"
+        class="pop"
+        :size="26"
+      />
     </button>
   </Transition>
 </template>

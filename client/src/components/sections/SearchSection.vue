@@ -1,6 +1,5 @@
 <template>
   <section class="search-section">
-
     <!-- ═══ Vue détail playlist / album ═══ -->
     <PlaylistDetail
       v-if="searchState.openedPlaylist"
@@ -12,21 +11,78 @@
     />
 
     <!-- ═══ Landing (aucune recherche effectuée) ═══ -->
-    <div v-else-if="!searchPerformed && results.length === 0" class="landing">
+    <div
+      v-else-if="!searchPerformed && results.length === 0"
+      class="landing"
+    >
       <div class="landing-logo">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round">
-          <line x1="5"    y1="10" x2="5"    y2="14" />
-          <line x1="9.5"  y1="7"  x2="9.5"  y2="17" />
-          <line x1="14"   y1="4"  x2="14"   y2="20" />
-          <line x1="18.5" y1="9"  x2="18.5" y2="15" />
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--accent)"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <line
+            x1="5"
+            y1="10"
+            x2="5"
+            y2="14"
+          />
+          <line
+            x1="9.5"
+            y1="7"
+            x2="9.5"
+            y2="17"
+          />
+          <line
+            x1="14"
+            y1="4"
+            x2="14"
+            y2="20"
+          />
+          <line
+            x1="18.5"
+            y1="9"
+            x2="18.5"
+            y2="15"
+          />
         </svg>
       </div>
-      <h1 class="landing-title">SC Downloader</h1>
-      <p class="landing-sub">Recherche un artiste, un album ou colle un lien SoundCloud</p>
+      <h1 class="landing-title">
+        SC Downloader
+      </h1>
+      <p class="landing-sub">
+        Recherche un artiste, un album ou colle un lien SoundCloud
+      </p>
 
-      <div class="landing-bar" :class="{ focused: inputFocused }">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
-          <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+      <div
+        class="landing-bar"
+        :class="{ focused: inputFocused }"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--color-text-muted)"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          style="flex-shrink:0"
+        >
+          <circle
+            cx="11"
+            cy="11"
+            r="7"
+          /><line
+            x1="21"
+            y1="21"
+            x2="16.65"
+            y2="16.65"
+          />
         </svg>
         <input
           v-model="searchQuery"
@@ -38,8 +94,12 @@
           @keyup.enter="onSearch"
           @focus="inputFocused = true"
           @blur="inputFocused = false"
-        />
-        <button class="landing-btn" @click="onSearch" :disabled="!searchQuery.trim()">
+        >
+        <button
+          class="landing-btn"
+          :disabled="!searchQuery.trim()"
+          @click="onSearch"
+        >
           Rechercher
         </button>
       </div>
@@ -49,9 +109,31 @@
     <template v-else>
       <!-- Barre de recherche + toolbar -->
       <div class="search-header">
-        <div class="search-bar" :class="{ focused: inputFocused }">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
-            <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+        <div
+          class="search-bar"
+          :class="{ focused: inputFocused }"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--color-text-muted)"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            style="flex-shrink:0"
+          >
+            <circle
+              cx="11"
+              cy="11"
+              r="7"
+            /><line
+              x1="21"
+              y1="21"
+              x2="16.65"
+              y2="16.65"
+            />
           </svg>
           <input
             v-model="searchQuery"
@@ -62,21 +144,30 @@
             @keyup.enter="onSearch"
             @focus="inputFocused = true"
             @blur="inputFocused = false"
-          />
-          <button class="search-btn" @click="onSearch" :disabled="isLoading || !searchQuery.trim()">
+          >
+          <button
+            class="search-btn"
+            :disabled="isLoading || !searchQuery.trim()"
+            @click="onSearch"
+          >
             Rechercher
           </button>
         </div>
 
         <!-- Filtres -->
-        <div v-if="searchQuery.trim() || results.length > 0" class="filters">
+        <div
+          v-if="searchQuery.trim() || results.length > 0"
+          class="filters"
+        >
           <button
             v-for="f in filters"
             :key="f.value"
             class="filter-pill"
             :class="{ active: activeFilter === f.value }"
             @click="onFilter(f.value)"
-          >{{ f.label }}</button>
+          >
+            {{ f.label }}
+          </button>
         </div>
 
         <div class="toolbar">
@@ -86,20 +177,88 @@
 
           <div class="view-controls">
             <div class="view-toggle">
-              <button class="toggle-btn" :class="{ active: viewMode === 'grid' }" title="Grille" @click="viewMode = 'grid'">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
-                  <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
-                  <rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
+              <button
+                class="toggle-btn"
+                :class="{ active: viewMode === 'grid' }"
+                title="Grille"
+                @click="viewMode = 'grid'"
+              >
+                <svg
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linejoin="round"
+                >
+                  <rect
+                    x="3"
+                    y="3"
+                    width="7"
+                    height="7"
+                    rx="1.5"
+                  /><rect
+                    x="14"
+                    y="3"
+                    width="7"
+                    height="7"
+                    rx="1.5"
+                  />
+                  <rect
+                    x="3"
+                    y="14"
+                    width="7"
+                    height="7"
+                    rx="1.5"
+                  /><rect
+                    x="14"
+                    y="14"
+                    width="7"
+                    height="7"
+                    rx="1.5"
+                  />
                 </svg>
               </button>
-              <button class="toggle-btn" :class="{ active: viewMode === 'list' }" title="Liste" @click="viewMode = 'list'">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                  <line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" />
+              <button
+                class="toggle-btn"
+                :class="{ active: viewMode === 'list' }"
+                title="Liste"
+                @click="viewMode = 'list'"
+              >
+                <svg
+                  width="17"
+                  height="17"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                >
+                  <line
+                    x1="4"
+                    y1="7"
+                    x2="20"
+                    y2="7"
+                  /><line
+                    x1="4"
+                    y1="12"
+                    x2="20"
+                    y2="12"
+                  /><line
+                    x1="4"
+                    y1="17"
+                    x2="20"
+                    y2="17"
+                  />
                 </svg>
               </button>
             </div>
 
-            <div v-if="viewMode === 'grid'" class="density">
+            <div
+              v-if="viewMode === 'grid'"
+              class="density"
+            >
               <input
                 class="density-range"
                 type="range"
@@ -110,14 +269,17 @@
                 :style="{ '--pct': densityPct + '%' }"
                 title="Cartes par ligne"
                 @input="gridCols = Number($event.target.value)"
-              />
+              >
             </div>
           </div>
         </div>
       </div>
 
       <!-- Corps scrollable -->
-      <div class="results-body sc-scroll" ref="resultsScrollEl">
+      <div
+        ref="resultsScrollEl"
+        class="results-body sc-scroll"
+      >
         <EmptyState
           v-if="!isLoading && searchPerformed && results.length === 0"
           :icon="SearchIcon"
@@ -125,9 +287,17 @@
           description="Essaie un autre mot-clé ou colle un lien SoundCloud direct dans la barre de recherche."
         />
 
-        <LoadingSkeleton v-else-if="isLoading" :type="viewMode === 'grid' ? 'card' : 'list'" :count="viewMode === 'grid' ? 8 : 6" />
+        <LoadingSkeleton
+          v-else-if="isLoading"
+          :type="viewMode === 'grid' ? 'card' : 'list'"
+          :count="viewMode === 'grid' ? 8 : 6"
+        />
 
-        <div v-else-if="results.length > 0 && viewMode === 'grid'" class="results-grid" :style="{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }">
+        <div
+          v-else-if="results.length > 0 && viewMode === 'grid'"
+          class="results-grid"
+          :style="{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }"
+        >
           <template v-for="item in results">
             <PlaylistCard
               v-if="item.kind === 'playlist'"
@@ -146,7 +316,10 @@
           </template>
         </div>
 
-        <div v-else-if="results.length > 0 && viewMode === 'list'" class="results-list">
+        <div
+          v-else-if="results.length > 0 && viewMode === 'list'"
+          class="results-list"
+        >
           <template v-for="item in results">
             <PlaylistCard
               v-if="item.kind === 'playlist'"
@@ -165,12 +338,19 @@
           </template>
         </div>
 
-        <div v-if="hasMore && !isLoading && results.length > 0" class="load-more-wrap">
-          <button class="load-more-btn" @click="loadMore">Charger plus</button>
+        <div
+          v-if="hasMore && !isLoading && results.length > 0"
+          class="load-more-wrap"
+        >
+          <button
+            class="load-more-btn"
+            @click="loadMore"
+          >
+            Charger plus
+          </button>
         </div>
       </div>
     </template>
-
   </section>
 </template>
 

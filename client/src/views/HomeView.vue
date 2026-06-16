@@ -1,5 +1,8 @@
 <template>
-  <SearchSection @download="onDownload" @download-all="onDownloadAll" />
+  <SearchSection
+    @download="onDownload"
+    @download-all="onDownloadAll"
+  />
 </template>
 
 <script setup>

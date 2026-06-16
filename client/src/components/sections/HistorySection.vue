@@ -2,12 +2,27 @@
   <section class="history-section">
     <div class="history-header">
       <div class="header-left">
-        <h1 class="title">Historique</h1>
+        <h1 class="title">
+          Historique
+        </h1>
         <span class="count">· {{ downloadCount }} son{{ downloadCount !== 1 ? 's' : '' }}</span>
       </div>
       <div class="header-right">
-        <button class="clear-btn" @click="clearCompleted" :disabled="queue.length === 0">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button
+          class="clear-btn"
+          :disabled="queue.length === 0"
+          @click="clearCompleted"
+        >
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
           </svg>
           Tout effacer
@@ -23,44 +38,128 @@
         description="Tes morceaux téléchargés apparaîtront ici, avec leur format et leur emplacement sur le disque."
       />
 
-      <div v-else class="history-list">
+      <div
+        v-else
+        class="history-list"
+      >
         <div
           v-for="item in queue"
           :key="item.id"
           class="history-item"
           :class="item.status"
         >
-          <div class="thumb" :style="{ background: thumbColor(item.id) }">
-            <img v-if="item.track.artworkUrl" :src="item.track.artworkUrl" :alt="item.track.title" class="thumb-img" />
-            <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34343f" stroke-width="2" stroke-linecap="round">
-              <line x1="6" y1="9" x2="6" y2="15" /><line x1="12" y1="5" x2="12" y2="19" /><line x1="18" y1="9" x2="18" y2="15" />
+          <div
+            class="thumb"
+            :style="{ background: thumbColor(item.id) }"
+          >
+            <img
+              v-if="item.track.artworkUrl"
+              :src="item.track.artworkUrl"
+              :alt="item.track.title"
+              class="thumb-img"
+            >
+            <svg
+              v-else
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#34343f"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
+              <line
+                x1="6"
+                y1="9"
+                x2="6"
+                y2="15"
+              /><line
+                x1="12"
+                y1="5"
+                x2="12"
+                y2="19"
+              /><line
+                x1="18"
+                y1="9"
+                x2="18"
+                y2="15"
+              />
             </svg>
           </div>
 
           <div class="info">
-            <div class="track-title" :title="item.track.title">{{ item.track.title }}</div>
-            <div class="track-artist">{{ item.track.artist }}</div>
+            <div
+              class="track-title"
+              :title="item.track.title"
+            >
+              {{ item.track.title }}
+            </div>
+            <div class="track-artist">
+              {{ item.track.artist }}
+            </div>
           </div>
 
           <div class="meta-date">
-            <span class="status-label" :style="{ color: statusColor(item.status) }">{{ statusLabel(item.status) }}</span>
+            <span
+              class="status-label"
+              :style="{ color: statusColor(item.status) }"
+            >{{ statusLabel(item.status) }}</span>
           </div>
 
-          <div v-if="item.status !== 'done' && item.status !== 'error'" class="progress-wrap">
-            <div class="progress-bar"><div class="progress-fill" :style="{ width: item.progress + '%' }" /></div>
+          <div
+            v-if="item.status !== 'done' && item.status !== 'error'"
+            class="progress-wrap"
+          >
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                :style="{ width: item.progress + '%' }"
+              />
+            </div>
             <span class="progress-text">{{ item.progress }}%</span>
           </div>
 
-          <div v-if="item.status === 'error'" class="error-text">{{ item.error }}</div>
+          <div
+            v-if="item.status === 'error'"
+            class="error-text"
+          >
+            {{ item.error }}
+          </div>
 
           <div class="actions">
-            <button v-if="item.status === 'done'" class="action-btn" title="Ouvrir dans le Finder">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button
+              v-if="item.status === 'done'"
+              class="action-btn"
+              title="Ouvrir dans le Finder"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <path d="M4 7a2 2 0 0 1 2-2h3.5l2 2H18a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
               </svg>
             </button>
-            <button @click="removeFromQueue(item.id)" class="action-btn remove" title="Supprimer l'entrée">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <button
+              class="action-btn remove"
+              title="Supprimer l'entrée"
+              @click="removeFromQueue(item.id)"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
                 <path d="M10 11v6" /><path d="M14 11v6" />
               </svg>

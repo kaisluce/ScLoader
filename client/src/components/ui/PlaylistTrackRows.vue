@@ -1,19 +1,31 @@
 <template>
   <div class="track-rows">
     <!-- Loader -->
-    <div v-if="loading" class="state-msg">
-      <Loader2 :size="16" class="spin" />
+    <div
+      v-if="loading"
+      class="state-msg"
+    >
+      <Loader2
+        :size="16"
+        class="spin"
+      />
       Chargement des titres…
     </div>
 
     <!-- Erreur -->
-    <div v-else-if="error" class="state-msg error">
+    <div
+      v-else-if="error"
+      class="state-msg error"
+    >
       <AlertCircle :size="16" />
       {{ error }}
     </div>
 
     <!-- Vide -->
-    <div v-else-if="tracks.length === 0" class="state-msg">
+    <div
+      v-else-if="tracks.length === 0"
+      class="state-msg"
+    >
       Aucun titre disponible.
     </div>
 
@@ -24,19 +36,41 @@
       :key="track.id"
       class="track-row"
     >
-      <button class="lead" :title="isCurrent(track) && state.isPlaying ? 'Pause' : 'Écouter un extrait'" @click.stop="onPreview(track)">
+      <button
+        class="lead"
+        :title="isCurrent(track) && state.isPlaying ? 'Pause' : 'Écouter un extrait'"
+        @click.stop="onPreview(track)"
+      >
         <template v-if="isCurrent(track)">
-          <Pause v-if="state.isPlaying" :size="14" class="lead-icon active" />
-          <Play v-else :size="14" class="lead-icon active" />
+          <Pause
+            v-if="state.isPlaying"
+            :size="14"
+            class="lead-icon active"
+          />
+          <Play
+            v-else
+            :size="14"
+            class="lead-icon active"
+          />
         </template>
         <template v-else>
           <span class="dot" />
-          <Play :size="14" class="lead-icon play-ic" />
+          <Play
+            :size="14"
+            class="lead-icon play-ic"
+          />
         </template>
       </button>
       <div class="row-info">
-        <div class="title" :title="track.title">{{ track.title }}</div>
-        <div class="artist">{{ track.artist }}</div>
+        <div
+          class="title"
+          :title="track.title"
+        >
+          {{ track.title }}
+        </div>
+        <div class="artist">
+          {{ track.artist }}
+        </div>
       </div>
       <span class="duration">{{ formatDuration(track.duration) }}</span>
       <button
