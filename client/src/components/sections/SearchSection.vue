@@ -1,151 +1,149 @@
 <template>
   <section class="search-section">
-    <!-- Vue détail d'une playlist / d'un album -->
+
+    <!-- ═══ Vue détail playlist / album ═══ -->
     <PlaylistDetail
-      v-if="selectedPlaylist"
-      :playlist="selectedPlaylist"
-      @close="closeDetail"
+      v-if="searchState.openedPlaylist"
+      :playlist="searchState.openedPlaylist"
+      @back="closePlaylist()"
       @search="onDetailSearch"
       @download="$emit('download', $event)"
       @download-all="$emit('download-all', $event)"
     />
 
+    <!-- ═══ Vue résultats ═══ -->
     <template v-else>
-    <!-- Barre de recherche + toolbar -->
-    <div class="search-header">
-      <div class="search-bar" :class="{ focused: inputFocused }">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
-          <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-        </svg>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Colle un lien SoundCloud ou recherche un artiste..."
-          class="search-input"
-          @input="onSearchInput"
-          @keyup.enter="onSearch"
-          @focus="inputFocused = true"
-          @blur="inputFocused = false"
+      <!-- Barre de recherche + toolbar -->
+      <div class="search-header">
+        <div class="search-bar" :class="{ focused: inputFocused }">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
+            <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Colle un lien SoundCloud ou recherche un artiste..."
+            class="search-input"
+            @input="onSearchInput"
+            @keyup.enter="onSearch"
+            @focus="inputFocused = true"
+            @blur="inputFocused = false"
+          />
+          <button class="search-btn" @click="onSearch" :disabled="isLoading || !searchQuery.trim()">
+            Rechercher
+          </button>
+        </div>
+
+        <!-- Filtres -->
+        <div v-if="searchQuery.trim() || results.length > 0" class="filters">
+          <button
+            v-for="f in filters"
+            :key="f.value"
+            class="filter-pill"
+            :class="{ active: activeFilter === f.value }"
+            @click="onFilter(f.value)"
+          >{{ f.label }}</button>
+        </div>
+
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <span class="result-label">{{ resultLabel }}</span>
+          </div>
+
+          <div class="view-controls">
+            <div class="view-toggle">
+              <button class="toggle-btn" :class="{ active: viewMode === 'grid' }" title="Grille" @click="viewMode = 'grid'">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
+                </svg>
+              </button>
+              <button class="toggle-btn" :class="{ active: viewMode === 'list' }" title="Liste" @click="viewMode = 'list'">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" />
+                </svg>
+              </button>
+            </div>
+
+            <div v-if="viewMode === 'grid'" class="density">
+              <input
+                class="density-range"
+                type="range"
+                min="2"
+                max="6"
+                step="1"
+                :value="gridCols"
+                :style="{ '--pct': densityPct + '%' }"
+                title="Cartes par ligne"
+                @input="gridCols = Number($event.target.value)"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Corps scrollable -->
+      <div class="results-body sc-scroll" ref="resultsScrollEl">
+        <EmptyState
+          v-if="!isLoading && searchPerformed && results.length === 0"
+          :icon="SearchIcon"
+          title="Aucun résultat"
+          description="Essaie un autre mot-clé ou colle un lien SoundCloud direct dans la barre de recherche."
         />
-        <button class="search-btn" @click="onSearch" :disabled="isLoading || !searchQuery.trim()">
-          Rechercher
-        </button>
-      </div>
 
-      <!-- Filtres par type de contenu -->
-      <div v-if="searchQuery.trim() || results.length > 0" class="filters">
-        <button
-          v-for="f in filters"
-          :key="f.value"
-          class="filter-pill"
-          :class="{ active: activeFilter === f.value }"
-          @click="onFilter(f.value)"
-        >{{ f.label }}</button>
-      </div>
+        <LoadingSkeleton v-else-if="isLoading" :type="viewMode === 'grid' ? 'card' : 'list'" :count="viewMode === 'grid' ? 8 : 6" />
 
-      <div class="toolbar">
-        <div class="toolbar-left">
-          <span class="result-label">{{ resultLabel }}</span>
-        </div>
-
-        <div class="view-controls">
-          <div class="view-toggle">
-            <button class="toggle-btn" :class="{ active: viewMode === 'grid' }" title="Grille" @click="viewMode = 'grid'">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
-                <rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
-              </svg>
-            </button>
-            <button class="toggle-btn" :class="{ active: viewMode === 'list' }" title="Liste" @click="viewMode = 'list'">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Densité de la grille : nombre de cartes par ligne -->
-          <div v-if="viewMode === 'grid'" class="density">
-            <input
-              class="density-range"
-              type="range"
-              min="2"
-              max="6"
-              step="1"
-              :value="gridCols"
-              :style="{ '--pct': densityPct + '%' }"
-              title="Cartes par ligne"
-              @input="gridCols = Number($event.target.value)"
+        <div v-else-if="results.length > 0 && viewMode === 'grid'" class="results-grid" :style="{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }">
+          <template v-for="item in results">
+            <PlaylistCard
+              v-if="item.kind === 'playlist'"
+              :key="itemKey(item)"
+              :playlist="item"
+              view-mode="grid"
+              @open="onOpenPlaylist"
+              @download-all="$emit('download-all', $event)"
             />
-          </div>
+            <TrackCard
+              v-else
+              :key="itemKey(item)"
+              :track="item"
+              @download="$emit('download', item)"
+            />
+          </template>
+        </div>
+
+        <div v-else-if="results.length > 0 && viewMode === 'list'" class="results-list">
+          <template v-for="item in results">
+            <PlaylistCard
+              v-if="item.kind === 'playlist'"
+              :key="itemKey(item)"
+              :playlist="item"
+              view-mode="list"
+              @open="onOpenPlaylist"
+              @download-all="$emit('download-all', $event)"
+            />
+            <TrackListItem
+              v-else
+              :key="itemKey(item)"
+              :track="item"
+              @download="$emit('download', item)"
+            />
+          </template>
+        </div>
+
+        <div v-if="hasMore && !isLoading && results.length > 0" class="load-more-wrap">
+          <button class="load-more-btn" @click="loadMore">Charger plus</button>
         </div>
       </div>
-    </div>
-
-    <!-- Corps -->
-    <div class="results-body sc-scroll">
-      <!-- Empty state -->
-      <EmptyState
-        v-if="!isLoading && searchPerformed && results.length === 0"
-        :icon="SearchIcon"
-        title="Aucun résultat"
-        description="Essaie un autre mot-clé ou colle un lien SoundCloud direct dans la barre de recherche."
-      />
-
-      <!-- Loading skeletons -->
-      <LoadingSkeleton v-else-if="isLoading" :type="viewMode === 'grid' ? 'card' : 'list'" :count="viewMode === 'grid' ? 8 : 6" />
-
-      <!-- Résultats grille -->
-      <div v-else-if="results.length > 0 && viewMode === 'grid'" class="results-grid" :style="{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }">
-        <template v-for="item in results">
-          <PlaylistCard
-            v-if="item.kind === 'playlist'"
-            :key="itemKey(item)"
-            :playlist="item"
-            view-mode="grid"
-            @open="openPlaylist"
-            @download-all="$emit('download-all', $event)"
-          />
-          <TrackCard
-            v-else
-            :key="itemKey(item)"
-            :track="item"
-            @download="$emit('download', item)"
-          />
-        </template>
-      </div>
-
-      <!-- Résultats liste -->
-      <div v-else-if="results.length > 0 && viewMode === 'list'" class="results-list">
-        <template v-for="item in results">
-          <PlaylistCard
-            v-if="item.kind === 'playlist'"
-            :key="itemKey(item)"
-            :playlist="item"
-            view-mode="list"
-            @open="openPlaylist"
-            @download-all="$emit('download-all', $event)"
-          />
-          <TrackListItem
-            v-else
-            :key="itemKey(item)"
-            :track="item"
-            @download="$emit('download', item)"
-          />
-        </template>
-      </div>
-
-      <!-- Charger plus -->
-      <div v-if="hasMore && !isLoading && results.length > 0" class="load-more-wrap">
-        <button class="load-more-btn" @click="loadMore">Charger plus</button>
-      </div>
-    </div>
     </template>
+
   </section>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { Search as SearchIcon } from 'lucide-vue-next'
+import { searchState, openPlaylist, closePlaylist } from '@/stores/searchStore'
 import useSearch from '@/composables/useSearch'
 import TrackCard from '../ui/TrackCard.vue'
 import TrackListItem from '../ui/TrackListItem.vue'
@@ -155,22 +153,23 @@ import LoadingSkeleton from '../ui/LoadingSkeleton.vue'
 import EmptyState from '../ui/EmptyState.vue'
 
 const {
-  query: composableQuery,
+  query,
   results,
   isLoading,
   hasMore,
   activeFilter,
+  searchPerformed,
   onQueryInput: composableOnQueryInput,
   onSearch: composableOnSearch,
   setFilter,
-  loadMore
+  loadMore,
 } = useSearch()
 
-const searchQuery = ref('')
+// searchQuery est un two-way computed sur le store via useSearch
+const searchQuery = query
+
 const viewMode = ref('grid')
-const searchPerformed = ref(false)
 const inputFocused = ref(false)
-const selectedPlaylist = ref(null)
 
 const GRID_MIN = 2
 const GRID_MAX = 6
@@ -181,7 +180,7 @@ const filters = [
   { value: 'all', label: 'Tout' },
   { value: 'tracks', label: 'Titres' },
   { value: 'playlists', label: 'Playlists' },
-  { value: 'albums', label: 'Albums' }
+  { value: 'albums', label: 'Albums' },
 ]
 
 const resultLabel = computed(() => {
@@ -197,51 +196,72 @@ function itemKey(item) {
 }
 
 function onSearchInput() {
-  composableQuery.value = searchQuery.value
   composableOnQueryInput()
 }
 
 function onSearch() {
   if (!searchQuery.value.trim()) return
-  searchPerformed.value = true
-  composableQuery.value = searchQuery.value
   composableOnSearch()
 }
 
 function onFilter(value) {
   if (activeFilter.value === value) return
-  composableQuery.value = searchQuery.value
-  if (searchQuery.value.trim()) searchPerformed.value = true
   setFilter(value)
 }
 
-function openPlaylist(playlist) {
-  selectedPlaylist.value = playlist
-  // Empile une entrée d'historique : le bouton "Précédent" referme le détail
-  window.history.pushState({ scPlaylistDetail: playlist.id }, '')
+function onOpenPlaylist(playlist) {
+  openPlaylist(playlist)
 }
 
-function closeDetail() {
-  // Revient en arrière → popstate referme la vue (historique cohérent)
-  if (selectedPlaylist.value) window.history.back()
-}
-
-function handlePopState() {
-  if (selectedPlaylist.value) selectedPlaylist.value = null
-}
-
-// Nouvelle recherche lancée depuis la loupe de la vue détail
 function onDetailSearch(value) {
-  if (selectedPlaylist.value) window.history.back() // retire l'entrée du détail
-  selectedPlaylist.value = null
+  closePlaylist()
   searchQuery.value = value
-  composableQuery.value = value
-  searchPerformed.value = true
   composableOnSearch()
 }
 
-onMounted(() => window.addEventListener('popstate', handlePopState))
-onBeforeUnmount(() => window.removeEventListener('popstate', handlePopState))
+// ── Scroll save / restore ─────────────────────────────────────────────────────
+const resultsScrollEl = ref(null)
+let scrollThrottle = null
+
+function onResultsScroll() {
+  if (scrollThrottle) return
+  scrollThrottle = setTimeout(() => {
+    searchState.scrollY = resultsScrollEl.value?.scrollTop ?? 0
+    scrollThrottle = null
+  }, 200)
+}
+
+function attachScroll() {
+  if (!resultsScrollEl.value) return
+  resultsScrollEl.value.scrollTop = searchState.scrollY
+  resultsScrollEl.value.addEventListener('scroll', onResultsScroll, { passive: true })
+}
+
+function detachScroll() {
+  resultsScrollEl.value?.removeEventListener('scroll', onResultsScroll)
+  if (scrollThrottle) { clearTimeout(scrollThrottle); scrollThrottle = null }
+}
+
+// Quand on revient de la vue détail → restaurer le scroll
+watch(() => searchState.openedPlaylist, async (newVal, oldVal) => {
+  if (newVal === null && oldVal !== null) {
+    await nextTick()
+    attachScroll()
+  } else if (newVal !== null) {
+    detachScroll()
+  }
+})
+
+onMounted(async () => {
+  if (!searchState.openedPlaylist) {
+    await nextTick()
+    attachScroll()
+  }
+})
+
+onBeforeUnmount(() => {
+  detachScroll()
+})
 
 defineEmits(['download', 'download-all'])
 </script>
@@ -369,7 +389,7 @@ defineEmits(['download', 'download-all'])
 .density {
   display: flex;
   align-items: center;
-  width: 73px; /* aligné sur la largeur du toggle (2×34 + gap + padding) */
+  width: 73px;
   padding: 0 4px;
 }
 
@@ -427,9 +447,7 @@ defineEmits(['download', 'download-all'])
   color: var(--color-text);
 }
 
-.toggle-btn:hover:not(.active) {
-  color: var(--color-text);
-}
+.toggle-btn:hover:not(.active) { color: var(--color-text); }
 
 .results-body {
   flex: 1;

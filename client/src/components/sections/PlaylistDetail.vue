@@ -4,6 +4,11 @@
 
     <!-- Header fixe -->
     <header class="detail-header">
+      <button class="btn-back" @click="$emit('back')">
+        <ChevronLeft :size="20" />
+        <span>Retour</span>
+      </button>
+
       <div class="search-mini" :class="{ open: miniOpen }">
         <button class="loupe" title="Nouvelle recherche" @click="focusMini">
           <Search :size="20" />
@@ -19,9 +24,6 @@
           @blur="miniOpen = false"
         />
       </div>
-      <button class="close-btn" title="Fermer" @click="$emit('close')">
-        <X :size="20" />
-      </button>
     </header>
 
     <!-- Corps -->
@@ -96,7 +98,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import { Search, X, Download, ListMusic } from 'lucide-vue-next'
+import { Search, ChevronLeft, Download, ListMusic } from 'lucide-vue-next'
 import { fetchPlaylist } from '@/services/soundcloudApi'
 import PlaylistTrackRows from '../ui/PlaylistTrackRows.vue'
 
@@ -104,7 +106,7 @@ const props = defineProps({
   playlist: { type: Object, required: true }
 })
 
-const emit = defineEmits(['close', 'search', 'download', 'download-all'])
+const emit = defineEmits(['back', 'search', 'download', 'download-all'])
 
 // ── Search mini ───────────────────────────────────────────────────────────────
 const q = ref('')
@@ -297,16 +299,24 @@ async function addAll() {
   width: 260px; padding: 0 10px 0 4px; opacity: 1;
 }
 
-.close-btn {
-  width: 40px; height: 40px; flex-shrink: 0;
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface);
-  color: var(--color-text-secondary); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all var(--transition-fast);
+  transition: color var(--transition-default);
+  flex-shrink: 0;
 }
-.close-btn:hover { color: var(--color-text); border-color: var(--color-border-hover); }
+.btn-back:hover { color: var(--color-text); }
 
 /* ── Corps ── */
 .detail-body {

@@ -10,14 +10,24 @@
 </template>
 
 <script setup>
+import { watch, onMounted } from 'vue'
 import AppSidebar from './components/AppSidebar.vue'
 import MiniPlayer from './components/MiniPlayer.vue'
 import DownloadStatusIcon from './components/DownloadStatusIcon.vue'
 import usePlayer from './composables/usePlayer'
 import useTheme from './composables/useTheme'
+import { settingsState } from './stores/settingsStore'
 
 const { state } = usePlayer()
-useTheme() // applique le thème mémorisé dès le démarrage
+useTheme()
+
+function applyAccent(color) {
+  document.documentElement.style.setProperty('--accent', color)
+}
+
+// Applique la couleur d'accent au démarrage et à chaque changement
+onMounted(() => applyAccent(settingsState.accentColor))
+watch(() => settingsState.accentColor, applyAccent)
 </script>
 
 <style scoped>
@@ -39,7 +49,6 @@ useTheme() // applique le thème mémorisé dès le démarrage
   overflow: hidden;
 }
 
-/* Réduit la zone de contenu de la hauteur du MiniPlayer (box-sizing: border-box global) */
 .main-content.with-player {
   padding-bottom: 72px;
 }

@@ -21,21 +21,51 @@
                 v-for="q in qualities"
                 :key="q.value"
                 class="quality-btn"
-                :class="{ active: quality === q.value }"
-                @click="quality = q.value"
+                :class="{ active: settingsState.quality === q.value }"
+                @click="setSetting('quality', q.value)"
               >{{ q.label }}</button>
             </div>
           </div>
 
-          <div class="setting-row last">
+          <div class="setting-row">
             <div class="setting-label">
               <div class="label-text">Dossier de sortie</div>
               <div class="label-desc">Emplacement des fichiers téléchargés.</div>
             </div>
             <div class="folder-selector">
-              <input type="text" readonly :value="outputFolder" class="folder-input" />
-              <button class="folder-btn">Parcourir</button>
+              <input
+                type="text"
+                readonly
+                :value="settingsState.outputDir || '~/Music/SC Downloader'"
+                class="folder-input"
+              />
+              <button class="folder-btn" @click="browseFolder">Parcourir</button>
             </div>
+          </div>
+
+          <div class="setting-row">
+            <div class="setting-label">
+              <div class="label-text">Téléchargements simultanés</div>
+              <div class="label-desc">Nombre maximum de fichiers téléchargés en parallèle.</div>
+            </div>
+            <div class="concurrent-control">
+              <button class="step-btn" :disabled="settingsState.maxConcurrent <= 1" @click="setSetting('maxConcurrent', settingsState.maxConcurrent - 1)">−</button>
+              <span class="concurrent-value">{{ settingsState.maxConcurrent }}</span>
+              <button class="step-btn" :disabled="settingsState.maxConcurrent >= 10" @click="setSetting('maxConcurrent', settingsState.maxConcurrent + 1)">+</button>
+            </div>
+          </div>
+
+          <div class="setting-row last">
+            <div class="setting-label">
+              <div class="label-text">Modèle de nom de fichier</div>
+              <div class="label-desc">Variables disponibles : {artist}, {title}, {year}.</div>
+            </div>
+            <input
+              type="text"
+              class="template-input"
+              :value="settingsState.filenameTemplate"
+              @change="setSetting('filenameTemplate', $event.target.value)"
+            />
           </div>
         </div>
 
@@ -64,10 +94,40 @@
                 :key="sw.color"
                 class="swatch"
                 :title="sw.name"
-                :style="{ background: sw.color, boxShadow: accentColor === sw.color ? `0 0 0 2px var(--color-surface), 0 0 0 4px ${sw.color}` : '0 0 0 1px rgba(0,0,0,0.25)' }"
-                @click="setAccent(sw.color)"
+                :style="{
+                  background: sw.color,
+                  boxShadow: settingsState.accentColor === sw.color
+                    ? `0 0 0 2px var(--color-surface), 0 0 0 4px ${sw.color}`
+                    : '0 0 0 1px rgba(0,0,0,0.25)'
+                }"
+                @click="setSetting('accentColor', sw.color)"
               />
             </div>
+          </div>
+        </div>
+
+        <!-- Comportement -->
+        <div class="settings-card">
+          <h2 class="card-title">Comportement</h2>
+
+          <div class="setting-row">
+            <div class="setting-label">
+              <div class="label-text">Notifications</div>
+              <div class="label-desc">Affiche une notification à la fin de chaque téléchargement.</div>
+            </div>
+            <button class="switch" :class="{ on: settingsState.showNotifications }" @click="setSetting('showNotifications', !settingsState.showNotifications)">
+              <span class="knob" />
+            </button>
+          </div>
+
+          <div class="setting-row last">
+            <div class="setting-label">
+              <div class="label-text">Vider la file à la fermeture</div>
+              <div class="label-desc">Annule les téléchargements en cours quand l'app se ferme.</div>
+            </div>
+            <button class="switch" :class="{ on: settingsState.clearQueueOnExit }" @click="setSetting('clearQueueOnExit', !settingsState.clearQueueOnExit)">
+              <span class="knob" />
+            </button>
           </div>
         </div>
 
@@ -96,25 +156,33 @@
           </div>
         </div>
 
+        <!-- Danger zone -->
+        <div class="settings-card danger-card">
+          <h2 class="card-title">Zone de danger</h2>
+          <div class="setting-row last">
+            <div class="setting-label">
+              <div class="label-text">Réinitialiser les paramètres</div>
+              <div class="label-desc">Remet tous les paramètres à leurs valeurs par défaut.</div>
+            </div>
+            <button class="reset-btn" @click="onReset">Réinitialiser</button>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import useTheme from '@/composables/useTheme'
+import { settingsState, setSetting, resetSettings } from '@/stores/settingsStore'
 
 const { theme, toggleTheme } = useTheme()
 
-const quality = ref('high')
-const outputFolder = ref('~/Music/SC Downloader')
-const accentColor = ref('#ff5500')
-
 const qualities = [
-  { value: 'low',  label: 'Basse' },
-  { value: 'med',  label: 'Moyenne' },
-  { value: 'high', label: 'Haute' },
+  { value: 'low',    label: 'Basse' },
+  { value: 'medium', label: 'Moyenne' },
+  { value: 'high',   label: 'Haute' },
 ]
 
 const swatches = [
@@ -126,9 +194,29 @@ const swatches = [
   { name: 'Cyan',       color: '#0fb5ae' },
 ]
 
-function setAccent(color) {
-  accentColor.value = color
-  document.documentElement.style.setProperty('--accent', color)
+async function browseFolder() {
+  // Ouvre un sélecteur de dossier natif si disponible via l'API Electron exposée
+  const api = window.electronAPI
+  if (api?.browseFolder) {
+    const dir = await api.browseFolder()
+    if (dir) setSetting('outputDir', dir)
+  } else {
+    // Fallback web : input[type=file] avec webkitdirectory
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.webkitdirectory = true
+    input.addEventListener('change', () => {
+      const path = input.files[0]?.path || input.files[0]?.webkitRelativePath?.split('/')[0]
+      if (path) setSetting('outputDir', path)
+    })
+    input.click()
+  }
+}
+
+function onReset() {
+  if (window.confirm('Réinitialiser tous les paramètres aux valeurs par défaut ?')) {
+    resetSettings()
+  }
 }
 </script>
 
@@ -212,11 +300,8 @@ function setAccent(color) {
   margin-top: 3px;
 }
 
-.quality-buttons {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
+/* Qualité */
+.quality-buttons { display: flex; gap: 8px; flex-shrink: 0; }
 
 .quality-btn {
   padding: 9px 18px;
@@ -231,33 +316,21 @@ function setAccent(color) {
   transition: all var(--transition-fast);
 }
 
-.quality-btn:hover:not(.active) {
-  border-color: var(--color-border-hover);
-  color: var(--color-text);
-}
+.quality-btn:hover:not(.active) { border-color: var(--color-border-hover); color: var(--color-text); }
+.quality-btn.active { background-color: var(--accent); border-color: transparent; color: #fff; }
 
-.quality-btn.active {
-  background-color: var(--accent);
-  border-color: transparent;
-  color: #fff;
-}
-
-.folder-selector {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
+/* Dossier */
+.folder-selector { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 .folder-input {
-  width: 240px;
+  width: 220px;
   height: 40px;
   padding: 0 14px;
   border-radius: 9px;
   border: 1px solid var(--color-border);
   background-color: var(--color-surface-dark);
   color: var(--color-text-secondary);
-  font-family: var(--font-family-mono);
+  font-family: var(--font-family-mono, monospace);
   font-size: 12.5px;
   outline: none;
 }
@@ -276,15 +349,57 @@ function setAccent(color) {
   transition: all var(--transition-fast);
 }
 
-.folder-btn:hover {
-  background-color: var(--color-hover);
-  border-color: var(--color-border-hover);
+.folder-btn:hover { background-color: var(--color-hover); border-color: var(--color-border-hover); }
+
+/* Concurrent */
+.concurrent-control { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+
+.step-btn {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-dark);
+  color: var(--color-text);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition-fast);
 }
 
+.step-btn:hover:not(:disabled) { border-color: var(--color-border-hover); background-color: var(--color-hover); }
+.step-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.concurrent-value {
+  min-width: 20px;
+  text-align: center;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+/* Modèle de fichier */
+.template-input {
+  width: 240px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 9px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-dark);
+  color: var(--color-text);
+  font-family: var(--font-family-mono, monospace);
+  font-size: 12.5px;
+  outline: none;
+  transition: border-color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.template-input:focus { border-color: var(--color-border-hover); }
+
+/* Switch */
 .switch {
   position: relative;
-  width: 38px;
-  height: 22px;
+  width: 38px; height: 22px;
   flex-shrink: 0;
   border-radius: 999px;
   border: none;
@@ -294,79 +409,70 @@ function setAccent(color) {
   transition: background var(--transition-fast);
 }
 
-.switch.on {
-  background: var(--accent);
-}
+.switch.on { background: var(--accent); }
 
 .knob {
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 16px;
-  height: 16px;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
   border-radius: 50%;
   background: #fff;
   transition: left var(--transition-fast);
 }
 
-.switch.on .knob {
-  left: 19px;
-}
+.switch.on .knob { left: 19px; }
 
-.swatches {
-  display: flex;
-  gap: 14px;
-  flex-shrink: 0;
-}
+/* Swatches */
+.swatches { display: flex; gap: 14px; flex-shrink: 0; }
 
 .swatch {
-  width: 30px;
-  height: 30px;
+  width: 30px; height: 30px;
   border-radius: 50%;
   border: none;
   cursor: pointer;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.swatch:hover {
-  transform: scale(1.08);
+.swatch:hover { transform: scale(1.08); }
+
+/* Reset */
+.danger-card { border-color: rgba(239, 68, 68, 0.2); }
+
+.reset-btn {
+  flex-shrink: 0;
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 9px;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  background-color: transparent;
+  color: #ef4444;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
-.about {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
+.reset-btn:hover { background-color: rgba(239, 68, 68, 0.08); border-color: #ef4444; }
+
+/* À propos */
+.about { display: flex; align-items: center; gap: 14px; }
 
 .about-icon {
-  width: 44px;
-  height: 44px;
+  width: 44px; height: 44px;
   border-radius: 11px;
   background-color: var(--color-surface-dark);
   border: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
 
 .about-text { flex: 1; }
-
-.app-name {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-}
-
-.app-version {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin-top: 2px;
-}
+.app-name { font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); }
+.app-version { font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: 2px; }
 
 .github-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  display: inline-flex; align-items: center; gap: 6px;
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   text-decoration: none;

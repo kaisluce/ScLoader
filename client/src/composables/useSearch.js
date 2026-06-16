@@ -1,129 +1,114 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import {
-  search,
-  searchByType,
-  searchSuggestions
-} from '@/services/soundcloudApi'
+  searchState,
+  setQuery,
+  setFilter,
+  setResults,
+  appendResults,
+  reset,
+} from '@/stores/searchStore'
+import { search, searchByType, searchSuggestions } from '@/services/soundcloudApi'
 
 const DEBOUNCE_DELAY = 300
 
-function useSearch() {
-  const query = ref('')
-  const results = ref([])
-  const suggestions = ref([])
-  const isLoading = ref(false)
-  const error = ref(null)
-  const hasMore = ref(false)
-  const nextHref = ref(null)
-  const activeFilter = ref('all') // 'all' | 'tracks' | 'playlists' | 'albums'
+// Module-level : singleton car le store l'est aussi
+let debounceTimer = null
 
-  let debounceTimer = null
+// Suggestions non persistées (transient)
+const suggestions = ref([])
 
-  async function onQueryInput() {
-    clearTimeout(debounceTimer)
-
-    if (!query.value.trim()) {
-      suggestions.value = []
-      return
-    }
-
-    debounceTimer = setTimeout(async () => {
-      try {
-        isLoading.value = true
-        error.value = null
-        const suggestionsList = await searchSuggestions(query.value)
-        suggestions.value = suggestionsList
-      } catch (err) {
-        error.value = 'Failed to load suggestions'
-        suggestions.value = []
-      } finally {
-        isLoading.value = false
-      }
-    }, DEBOUNCE_DELAY)
-  }
-
-  async function onSearch() {
-    if (!query.value.trim()) {
-      error.value = 'Please enter a search query'
-      return
-    }
-
-    try {
-      isLoading.value = true
-      error.value = null
-      results.value = []
-      suggestions.value = []
-      nextHref.value = null
-
-      const result = await search(query.value, activeFilter.value)
-      results.value = result.items || []
-      nextHref.value = result.nextHref
-      hasMore.value = result.hasMore || false
-    } catch (err) {
-      error.value = 'Failed to search. Please try again.'
-      results.value = []
-      nextHref.value = null
-      hasMore.value = false
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  function setFilter(filter) {
-    activeFilter.value = filter
-    // Relance la recherche avec le nouveau filtre si query non vide
-    if (query.value.trim()) onSearch()
-  }
-
-  async function loadMore() {
-    if (!nextHref.value || isLoading.value) {
-      return
-    }
-
-    try {
-      isLoading.value = true
-      error.value = null
-
-      const params = new URLSearchParams(nextHref.value.split('?')[1])
-      const offset = parseInt(params.get('offset')) || results.value.length
-      const result = await searchByType(query.value, activeFilter.value, offset)
-
-      results.value.push(...(result.items || []))
-      nextHref.value = result.nextHref
-      hasMore.value = !!result.nextHref
-    } catch (err) {
-      error.value = 'Failed to load more results'
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  function clearSearch() {
-    clearTimeout(debounceTimer)
-    query.value = ''
-    results.value = []
+async function onQueryInput() {
+  clearTimeout(debounceTimer)
+  if (!searchState.query.trim()) {
     suggestions.value = []
-    isLoading.value = false
-    error.value = null
-    hasMore.value = false
-    nextHref.value = null
-    activeFilter.value = 'all'
+    return
+  }
+  debounceTimer = setTimeout(async () => {
+    try {
+      suggestions.value = await searchSuggestions(searchState.query)
+    } catch {
+      suggestions.value = []
+    }
+  }, DEBOUNCE_DELAY)
+}
+
+async function onSearch() {
+  const q = searchState.query.trim()
+  if (!q) {
+    searchState.error = 'Please enter a search query'
+    return
   }
 
+  // Reset résultats/détail/scroll sans toucher query ni activeFilter
+  searchState.results = []
+  searchState.nextHref = null
+  searchState.hasMore = false
+  searchState.openedPlaylist = null
+  searchState.scrollY = 0
+  searchState.error = null
+  searchState.searchPerformed = true
+  searchState.isLoading = true
+  suggestions.value = []
+
+  try {
+    const result = await search(q, searchState.activeFilter)
+    setResults(result.items || [], result.nextHref)
+  } catch {
+    searchState.error = 'Failed to search. Please try again.'
+  } finally {
+    searchState.isLoading = false
+  }
+}
+
+function onSetFilter(filter) {
+  if (searchState.activeFilter === filter) return
+  setFilter(filter)
+  if (searchState.query.trim()) onSearch()
+}
+
+async function loadMore() {
+  if (!searchState.nextHref || searchState.isLoading) return
+
+  searchState.isLoading = true
+  searchState.error = null
+  try {
+    const params = new URLSearchParams(searchState.nextHref.split('?')[1])
+    const offset = parseInt(params.get('offset')) || searchState.results.length
+    const result = await searchByType(searchState.query, searchState.activeFilter, offset)
+    appendResults(result.items || [], result.nextHref)
+  } catch {
+    searchState.error = 'Failed to load more results'
+  } finally {
+    searchState.isLoading = false
+  }
+}
+
+function clearSearch() {
+  clearTimeout(debounceTimer)
+  suggestions.value = []
+  reset()
+}
+
+// Interface identique à l'ancienne pour éviter de casser les consommateurs
+function useSearch() {
   return {
-    query,
-    results,
+    query: computed({
+      get: () => searchState.query,
+      set: (v) => setQuery(v),
+    }),
+    results: computed(() => searchState.results),
     suggestions,
-    isLoading,
-    error,
-    hasMore,
-    nextHref,
-    activeFilter,
+    isLoading: computed(() => searchState.isLoading),
+    error: computed(() => searchState.error),
+    hasMore: computed(() => searchState.hasMore),
+    nextHref: computed(() => searchState.nextHref),
+    activeFilter: computed(() => searchState.activeFilter),
+    searchPerformed: computed(() => searchState.searchPerformed),
     onQueryInput,
     onSearch,
-    setFilter,
+    setFilter: onSetFilter,
     loadMore,
-    clearSearch
+    clearSearch,
   }
 }
 
