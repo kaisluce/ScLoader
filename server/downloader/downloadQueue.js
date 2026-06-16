@@ -50,7 +50,7 @@ class DownloadQueue extends EventEmitter {
     this.isProcessing = false
   }
 
-  addToQueue(track, quality = 'medium') {
+  addToQueue(track, quality = 'medium', outputDir) {
     if (!track || !track.id) {
       throw new Error('Invalid track object')
     }
@@ -60,6 +60,7 @@ class DownloadQueue extends EventEmitter {
       id,
       track,
       quality,
+      outputDir: outputDir || null,
       status: 'pending',
       progress: 0,
       error: null,
@@ -223,11 +224,14 @@ class DownloadQueue extends EventEmitter {
       this.emit('queue:update', this.getQueue())
       logger.log('INFO', 'Conversion en MP3...')
 
-      if (!fs.existsSync(config.OUTPUT_DIR)) {
-        fs.mkdirSync(config.OUTPUT_DIR, { recursive: true })
+      if (!item.outputDir) {
+        throw new Error('NO_OUTPUT_DIR')
+      }
+      if (!fs.existsSync(item.outputDir)) {
+        fs.mkdirSync(item.outputDir, { recursive: true })
       }
 
-      const outputPath = path.join(config.OUTPUT_DIR, fileName)
+      const outputPath = path.join(item.outputDir, fileName)
 
       await convertToMp3(
         tempPath,

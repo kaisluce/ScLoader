@@ -92,6 +92,34 @@ app.get('/api/logs/stream', (req, res) => {
   })
 })
 
+// ─── Folder picker ───────────────────────────────────────────────────────────
+
+app.get('/api/browse-folder', (req, res) => {
+  const { execFile, exec } = require('child_process')
+  const os = require('os')
+
+  const pl = os.platform()
+
+  if (pl === 'darwin') {
+    execFile('osascript', ['-e', 'POSIX path of (choose folder)'], (err, stdout) => {
+      if (err) return res.json({ path: null })
+      res.json({ path: stdout.trim().replace(/\/$/, '') })
+    })
+  } else if (pl === 'win32') {
+    const ps = `Add-Type -AssemblyName System.Windows.Forms; $d = New-Object System.Windows.Forms.FolderBrowserDialog; if ($d.ShowDialog() -eq 'OK') { $d.SelectedPath }`
+    execFile('powershell', ['-NoProfile', '-Command', ps], (err, stdout) => {
+      if (err) return res.json({ path: null })
+      res.json({ path: stdout.trim() || null })
+    })
+  } else {
+    // Linux : essaie zenity, sinon kdialog
+    exec('zenity --file-selection --directory 2>/dev/null || kdialog --getexistingdirectory 2>/dev/null', (err, stdout) => {
+      if (err || !stdout.trim()) return res.json({ path: null })
+      res.json({ path: stdout.trim() })
+    })
+  }
+})
+
 // ─── Downloader routes ───────────────────────────────────────────────────────
 
 app.use('/api', downloaderRouter)
