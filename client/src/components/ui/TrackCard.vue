@@ -66,7 +66,7 @@
 <script setup>
 import { computed } from 'vue'
 import { Music, Download, Play, Pause } from 'lucide-vue-next'
-import Badge from './Badge.vue'
+import Badge from './AppBadge.vue'
 import usePlayer from '@/composables/usePlayer'
 
 const props = defineProps({
