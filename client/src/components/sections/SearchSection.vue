@@ -11,6 +11,40 @@
       @download-all="$emit('download-all', $event)"
     />
 
+    <!-- ═══ Landing (aucune recherche effectuée) ═══ -->
+    <div v-else-if="!searchPerformed && results.length === 0" class="landing">
+      <div class="landing-logo">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round">
+          <line x1="5"    y1="10" x2="5"    y2="14" />
+          <line x1="9.5"  y1="7"  x2="9.5"  y2="17" />
+          <line x1="14"   y1="4"  x2="14"   y2="20" />
+          <line x1="18.5" y1="9"  x2="18.5" y2="15" />
+        </svg>
+      </div>
+      <h1 class="landing-title">SC Downloader</h1>
+      <p class="landing-sub">Recherche un artiste, un album ou colle un lien SoundCloud</p>
+
+      <div class="landing-bar" :class="{ focused: inputFocused }">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
+          <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Artiste, titre, lien SoundCloud…"
+          class="landing-input"
+          autofocus
+          @input="onSearchInput"
+          @keyup.enter="onSearch"
+          @focus="inputFocused = true"
+          @blur="inputFocused = false"
+        />
+        <button class="landing-btn" @click="onSearch" :disabled="!searchQuery.trim()">
+          Rechercher
+        </button>
+      </div>
+    </div>
+
     <!-- ═══ Vue résultats ═══ -->
     <template v-else>
       <!-- Barre de recherche + toolbar -->
@@ -273,6 +307,92 @@ defineEmits(['download', 'download-all'])
   height: 100%;
   overflow: hidden;
 }
+
+/* ── Landing ── */
+.landing {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px;
+}
+
+.landing-logo {
+  width: 88px;
+  height: 88px;
+  border-radius: 22px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.landing-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+}
+
+.landing-sub {
+  margin: 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+
+.landing-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 560px;
+  height: 58px;
+  padding: 8px 8px 8px 20px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  transition: border-color var(--transition-fast);
+}
+
+.landing-bar.focused,
+.landing-bar:focus-within {
+  border-color: var(--color-border-hover);
+}
+
+.landing-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+}
+
+.landing-btn {
+  flex-shrink: 0;
+  height: 42px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 10px;
+  background-color: var(--accent);
+  color: #fff;
+  font-family: inherit;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: filter var(--transition-fast);
+}
+
+.landing-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.landing-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .search-header {
   flex-shrink: 0;

@@ -1,13 +1,13 @@
 <template>
   <aside class="sidebar">
-    <div class="logo" title="SC Downloader">
+    <button class="logo" title="Accueil" @click="goHome">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round">
         <line x1="5"   y1="10" x2="5"   y2="14" />
         <line x1="9.5" y1="7"  x2="9.5" y2="17" />
         <line x1="14"  y1="4"  x2="14"  y2="20" />
         <line x1="18.5" y1="9" x2="18.5" y2="15" />
       </svg>
-    </div>
+    </button>
 
     <nav class="nav">
       <router-link :to="{ name: 'home' }"     class="nav-item" :class="{ active: $route.name === 'home' }"     title="Recherche">
@@ -44,11 +44,18 @@
 
 <script setup>
 import { watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import useQueueStats from '@/composables/useQueueStats'
+import { reset } from '@/stores/searchStore'
 
 const route = useRoute()
+const router = useRouter()
 const { newDoneCount, newErrorCount, resetBadges } = useQueueStats()
+
+function goHome() {
+  reset()
+  router.push({ name: 'home' })
+}
 
 // Remet les badges à zéro à chaque arrivée sur /history
 watch(
@@ -91,6 +98,14 @@ function fmtCount(n) {
   justify-content: center;
   margin-bottom: 28px;
   flex-shrink: 0;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.logo:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
 .nav {
