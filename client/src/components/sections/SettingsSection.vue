@@ -49,7 +49,8 @@
               <input
                 type="text"
                 readonly
-                :value="settingsState.outputDir || '~/Music/SC Downloader'"
+                :value="settingsState.outputDir"
+                placeholder="Aucun dossier défini"
                 class="folder-input"
               >
               <button
