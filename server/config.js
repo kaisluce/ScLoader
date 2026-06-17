@@ -1,9 +1,8 @@
-const path = require('path')
 const os = require('os')
+const path = require('path')
 
 const CLIENT_ID = 'QNR5nrdLOvApYERC8AOUr3VjRfHnLjle'
 const SOUNDCLOUD_API_BASE = 'https://api-v2.soundcloud.com'
-const OUTPUT_DIR = path.join(os.homedir(), 'Downloads', 'SoundCloud')
 const TEMP_DIR = path.join(os.tmpdir(), 'sc-downloader')
 const MAX_CONCURRENT = 3
 
@@ -18,7 +17,6 @@ const DEFAULT_QUALITY = 'medium'
 module.exports = {
   CLIENT_ID,
   SOUNDCLOUD_API_BASE,
-  OUTPUT_DIR,
   TEMP_DIR,
   MAX_CONCURRENT,
   QUALITY_PRESETS,

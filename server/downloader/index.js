@@ -34,7 +34,7 @@ async function initDownloader() {
 
 router.post('/downloads', (req, res) => {
   try {
-    const { track, quality = 'medium' } = req.body
+    const { track, quality = 'medium', outputDir } = req.body
 
     if (!track || !track.id) {
       return res.status(400).json({ error: 'Invalid track object' })
@@ -44,7 +44,11 @@ router.post('/downloads', (req, res) => {
       return res.status(400).json({ error: 'Track has no available transcodings' })
     }
 
-    const id = queue.addToQueue(track, quality)
+    if (!outputDir) {
+      return res.status(400).json({ error: 'NO_OUTPUT_DIR' })
+    }
+
+    const id = queue.addToQueue(track, quality, outputDir)
     res.json({ id, status: 'pending' })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -55,7 +59,7 @@ router.get('/downloads', (req, res) => {
   res.json({
     items: queue.getQueue(),
     config: {
-      outputDir: config.OUTPUT_DIR,
+      outputDir: null,
       maxConcurrent: config.MAX_CONCURRENT,
       ffmpegAvailable,
       qualityPresets: config.QUALITY_PRESETS
@@ -103,7 +107,7 @@ router.get('/downloader/status', (req, res) => {
     ffmpegAvailable,
     queueLength: queue.queue.length,
     activeDownloads: queue.activeCount,
-    outputDir: config.OUTPUT_DIR
+    outputDir: null
   })
 })
 

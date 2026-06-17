@@ -49,7 +49,8 @@
               <input
                 type="text"
                 readonly
-                :value="settingsState.outputDir || '~/Music/SC Downloader'"
+                :value="settingsState.outputDir"
+                placeholder="Aucun dossier défini"
                 class="folder-input"
               >
               <button
@@ -298,6 +299,7 @@
 <script setup>
 import useTheme from '@/composables/useTheme'
 import { settingsState, setSetting, resetSettings } from '@/stores/settingsStore'
+import { pickFolder } from '@/composables/useFolderPicker'
 
 const { theme, toggleTheme } = useTheme()
 
@@ -317,22 +319,8 @@ const swatches = [
 ]
 
 async function browseFolder() {
-  // Ouvre un sélecteur de dossier natif si disponible via l'API Electron exposée
-  const api = window.electronAPI
-  if (api?.browseFolder) {
-    const dir = await api.browseFolder()
-    if (dir) setSetting('outputDir', dir)
-  } else {
-    // Fallback web : input[type=file] avec webkitdirectory
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.webkitdirectory = true
-    input.addEventListener('change', () => {
-      const path = input.files[0]?.path || input.files[0]?.webkitRelativePath?.split('/')[0]
-      if (path) setSetting('outputDir', path)
-    })
-    input.click()
-  }
+  const dir = await pickFolder()
+  if (dir) setSetting('outputDir', dir)
 }
 
 function onReset() {
