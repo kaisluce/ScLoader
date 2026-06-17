@@ -9,6 +9,8 @@ async function checkFfmpeg() {
   return new Promise((resolve) => {
     try {
       ffmpegPath = require('ffmpeg-static')
+      // S'assure que le binaire est exécutable (nécessaire sur certains hébergeurs).
+      fs.chmodSync(ffmpegPath, 0o755)
       resolve(true)
     } catch (e) {
       resolve(false)
