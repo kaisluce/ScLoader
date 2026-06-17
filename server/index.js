@@ -1,10 +1,11 @@
+require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const { router: downloaderRouter, initDownloader } = require('./downloader')
 const logger = require('./logger')
 
 const app = express()
-const PORT = 3000
+const PORT = parseInt(process.env.PORT, 10) || 3000
 
 app.use(cors())
 app.use(express.json())

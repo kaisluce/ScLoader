@@ -5,7 +5,6 @@ const STORAGE_KEY = 'sc-downloader:settings'
 function defaultState() {
   return {
     quality: 'high',
-    outputDir: '',
     maxConcurrent: 3,
     filenameTemplate: '{artist} - {title}',
     accentColor: '#ff5500',

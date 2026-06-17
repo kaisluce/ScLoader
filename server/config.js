@@ -1,10 +1,11 @@
 const os = require('os')
 const path = require('path')
 
-const CLIENT_ID = 'QNR5nrdLOvApYERC8AOUr3VjRfHnLjle'
+// client_id never reaches the frontend — read from env, fallback to a public id.
+const CLIENT_ID = process.env.SC_CLIENT_ID || 'QNR5nrdLOvApYERC8AOUr3VjRfHnLjle'
 const SOUNDCLOUD_API_BASE = 'https://api-v2.soundcloud.com'
 const TEMP_DIR = path.join(os.tmpdir(), 'sc-downloader')
-const MAX_CONCURRENT = 3
+const MAX_CONCURRENT = parseInt(process.env.MAX_CONCURRENT_DOWNLOADS, 10) || 3
 
 const QUALITY_PRESETS = {
   low: { bitrate: '96k', label: 'Low (96 kbps)' },

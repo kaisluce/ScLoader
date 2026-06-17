@@ -39,32 +39,6 @@
           <div class="setting-row">
             <div class="setting-label">
               <div class="label-text">
-                Dossier de sortie
-              </div>
-              <div class="label-desc">
-                Emplacement des fichiers téléchargés.
-              </div>
-            </div>
-            <div class="folder-selector">
-              <input
-                type="text"
-                readonly
-                :value="settingsState.outputDir"
-                placeholder="Aucun dossier défini"
-                class="folder-input"
-              >
-              <button
-                class="folder-btn"
-                @click="browseFolder"
-              >
-                Parcourir
-              </button>
-            </div>
-          </div>
-
-          <div class="setting-row">
-            <div class="setting-label">
-              <div class="label-text">
                 Téléchargements simultanés
               </div>
               <div class="label-desc">
@@ -299,7 +273,6 @@
 <script setup>
 import useTheme from '@/composables/useTheme'
 import { settingsState, setSetting, resetSettings } from '@/stores/settingsStore'
-import { pickFolder } from '@/composables/useFolderPicker'
 
 const { theme, toggleTheme } = useTheme()
 
@@ -317,11 +290,6 @@ const swatches = [
   { name: 'Rose',       color: '#e0457b' },
   { name: 'Cyan',       color: '#0fb5ae' },
 ]
-
-async function browseFolder() {
-  const dir = await pickFolder()
-  if (dir) setSetting('outputDir', dir)
-}
 
 function onReset() {
   if (window.confirm('Réinitialiser tous les paramètres aux valeurs par défaut ?')) {
@@ -428,38 +396,6 @@ function onReset() {
 
 .quality-btn:hover:not(.active) { border-color: var(--color-border-hover); color: var(--color-text); }
 .quality-btn.active { background-color: var(--accent); border-color: transparent; color: #fff; }
-
-/* Dossier */
-.folder-selector { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-
-.folder-input {
-  width: 220px;
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 9px;
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface-dark);
-  color: var(--color-text-secondary);
-  font-family: var(--font-family-mono, monospace);
-  font-size: 12.5px;
-  outline: none;
-}
-
-.folder-btn {
-  height: 40px;
-  padding: 0 18px;
-  border-radius: 9px;
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface-dark);
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.folder-btn:hover { background-color: var(--color-hover); border-color: var(--color-border-hover); }
 
 /* Concurrent */
 .concurrent-control { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
