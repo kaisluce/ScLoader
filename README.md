@@ -13,7 +13,7 @@ Application desktop et web pour télécharger de la musique depuis SoundCloud en
 - **Recherche** — par artiste, titre ou lien SoundCloud direct
 - **Filtres** — titres, playlists, albums
 - **Vue grille / liste** — avec densité ajustable
-- **Téléchargement MP3** — 3 niveaux de qualité : `96k` / `160k` / `320k`
+- **Téléchargement MP3** — 3 niveaux de qualité : `96k` / `160k` / `320k (upscaled)`
 - **Playlists & albums** — téléchargement en un clic
 - **File de téléchargement** — plusieurs téléchargements simultanés
 - **Choix du dossier** — sélecteur de dossier natif
