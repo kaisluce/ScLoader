@@ -16,8 +16,9 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: -100, y: -100 },
+    ...(process.platform === 'darwin'
+      ? { titleBarStyle: 'hiddenInset', trafficLightPosition: { x: -100, y: -100 } }
+      : { frame: false }),
     backgroundColor: '#0f0f0f',
     show: false,
   })
