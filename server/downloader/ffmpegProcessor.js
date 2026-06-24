@@ -9,7 +9,11 @@ async function checkFfmpeg() {
   return new Promise((resolve) => {
     try {
       ffmpegPath = require('ffmpeg-static')
-      // S'assure que le binaire est exécutable (nécessaire sur certains hébergeurs).
+      // Dans une app Electron packagée, le binaire est dans .asar.unpacked
+      // mais ffmpeg-static retourne le chemin dans .asar — on corrige.
+      if (ffmpegPath.includes('app.asar')) {
+        ffmpegPath = ffmpegPath.replace('app.asar', 'app.asar.unpacked')
+      }
       fs.chmodSync(ffmpegPath, 0o755)
       resolve(true)
     } catch (e) {

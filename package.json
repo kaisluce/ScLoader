@@ -5,7 +5,7 @@
   "main": "electron/main.js",
   "scripts": {
     "electron:dev": "concurrently -k \"cd client && npm run serve\" \"wait-on http://localhost:8080 && cross-env NODE_ENV=development electron .\"",
-    "electron:build": "cd client && cross-env ELECTRON_BUILD=true VUE_APP_ELECTRON=true npm run build && cd .. && electron-builder",
+    "electron:build": "cd client && cross-env ELECTRON_BUILD=true VUE_APP_ELECTRON=true VUE_APP_API_BASE_URL=http://localhost:3000/api npm run build && cd .. && electron-builder",
     "prepare": "husky"
   },
   "build": {
@@ -19,9 +19,9 @@
       "!server/node_modules/**"
     ],
     "asarUnpack": ["**/node_modules/ffmpeg-static/**"],
-    "mac": { "category": "public.app-category.music" },
-    "win": { "target": "nsis" },
-    "linux": { "target": "AppImage" }
+    "mac": { "category": "public.app-category.music", "icon": "build/icons/mac/icon.icns" },
+    "win": { "target": "nsis", "icon": "build/icons/win/icon.ico" },
+    "linux": { "target": "AppImage", "icon": "build/icons/png/512x512.png" }
   },
   "dependencies": {
     "cors": "^2.8.5",
