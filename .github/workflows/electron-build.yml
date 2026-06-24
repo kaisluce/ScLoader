@@ -1,0 +1,74 @@
+name: Electron Build
+
+on:
+  pull_request:
+    branches:
+      - Electron-app
+  push:
+    branches:
+      - Electron-app
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            label: macOS
+          - os: windows-latest
+            label: Windows
+          - os: ubuntu-latest
+            label: Linux
+
+    name: Build (${{ matrix.label }})
+    runs-on: ${{ matrix.os }}
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Linux deps
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y libarchive-tools
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install client dependencies
+        run: npm install
+        working-directory: client
+
+      # PR ouverte / mise à jour → build simple pour vérifier que ça compile
+      - name: Build (PR)
+        if: github.event_name == 'pull_request'
+        run: npm run electron:build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # PR mergée (push sur Electron-app) → build + GitHub Release
+      - name: Build & Publish (merge)
+        if: github.event_name == 'push'
+        run: npm run electron:build -- --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact (PR only)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SC-Downloader-${{ matrix.label }}
+          path: |
+            dist-electron/*.dmg
+            dist-electron/*.exe
+            dist-electron/*.AppImage
+          if-no-files-found: warn

@@ -7,26 +7,27 @@
 
 <script setup>
 import SearchSection from '@/components/sections/SearchSection.vue'
-import useDownloadQueue from '@/composables/useDownloadQueue'
+import useDirectDownload from '@/composables/useDirectDownload'
 
-const { addToQueue } = useDownloadQueue()
+const { download } = useDirectDownload()
 
 async function onDownload(track) {
   try {
-    await addToQueue(track, 'high')
+    await download(track, 'high')
   } catch (err) {
-    console.error('Failed to add to queue:', err)
+    console.error('Download failed:', err)
   }
 }
 
 async function onDownloadAll(tracks) {
-  // Ajoute tous les titres de la playlist/album en parallèle
-  await Promise.all(
-    tracks.map(track =>
-      addToQueue(track, 'high').catch(err =>
-        console.error(`Failed to add "${track.title}":`, err)
-      )
-    )
-  )
+  // Téléchargements séquentiels : un Blob/save-dialog à la fois pour ne pas
+  // saturer le serveur (résolution + conversion ffmpeg) ni le navigateur.
+  for (const track of tracks) {
+    try {
+      await download(track, 'high')
+    } catch (err) {
+      console.error(`Download failed for "${track.title}":`, err)
+    }
+  }
 }
 </script>

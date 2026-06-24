@@ -288,7 +288,7 @@
         />
 
         <LoadingSkeleton
-          v-else-if="isLoading"
+          v-else-if="isLoading && results.length === 0"
           :type="viewMode === 'grid' ? 'card' : 'list'"
           :count="viewMode === 'grid' ? 8 : 6"
         />
@@ -339,14 +339,15 @@
         </div>
 
         <div
-          v-if="hasMore && !isLoading && results.length > 0"
+          v-if="hasMore && results.length > 0"
           class="load-more-wrap"
         >
           <button
             class="load-more-btn"
+            :disabled="isLoading"
             @click="loadMore"
           >
-            Charger plus
+            {{ isLoading ? 'Chargement…' : 'Charger plus' }}
           </button>
         </div>
       </div>

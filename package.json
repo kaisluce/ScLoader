@@ -2,26 +2,42 @@
   "name": "spotify-downloader",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "electron/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "electron:dev": "concurrently -k \"cd client && npm run serve\" \"wait-on http://localhost:8080 && cross-env NODE_ENV=development electron .\"",
+    "electron:build": "cd client && cross-env ELECTRON_BUILD=true VUE_APP_ELECTRON=true VUE_APP_API_BASE_URL=http://localhost:3000/api npm run build && cd .. && electron-builder",
     "prepare": "husky"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kaisluce/ScLoader.git"
+  "build": {
+    "appId": "com.scloader.app",
+    "productName": "SC Downloader",
+    "directories": { "output": "dist-electron" },
+    "files": [
+      "electron/**",
+      "server/**",
+      "client/dist/**",
+      "!server/node_modules/**"
+    ],
+    "asarUnpack": ["**/node_modules/ffmpeg-static/**"],
+    "publish": { "provider": "github" },
+    "mac": { "category": "public.app-category.music", "icon": "build/icons/mac/icon.icns" },
+    "win": { "target": "nsis", "icon": "build/icons/win/icon.ico" },
+    "linux": { "target": "AppImage", "icon": "build/icons/png/512x512.png" }
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/kaisluce/ScLoader/issues"
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.18.2",
+    "ffmpeg-static": "^5.1.0"
   },
-  "homepage": "https://github.com/kaisluce/ScLoader#readme",
   "devDependencies": {
+    "concurrently": "^9.0.0",
+    "cross-env": "^7.0.3",
+    "electron": "^32.0.0",
+    "electron-builder": "^25.0.0",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.7"
+    "lint-staged": "^17.0.7",
+    "wait-on": "^8.0.0"
   },
   "lint-staged": {
     "client/src/**/*.{vue,js}": "eslint --fix"

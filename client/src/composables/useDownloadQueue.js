@@ -1,7 +1,5 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { API_BASE_URL } from '@/config/api'
-import { settingsState, setSetting } from '@/stores/settingsStore'
-import { pickFolder } from '@/composables/useFolderPicker'
 
 const POLL_INTERVAL = 1000
 
@@ -42,27 +40,14 @@ function useDownloadQueue() {
         throw new Error('Track has no available streams')
       }
 
-      let outputDir = settingsState.outputDir
-      if (!outputDir) {
-        outputDir = await pickFolder()
-        if (!outputDir) {
-          error.value = 'Choisissez d\'abord un dossier de téléchargement'
-          throw new Error('NO_OUTPUT_DIR')
-        }
-        setSetting('outputDir', outputDir)
-      }
-
       const response = await fetch(`${API_BASE_URL}/downloads`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ track, quality, outputDir })
+        body: JSON.stringify({ track, quality })
       })
 
       if (!response.ok) {
         const errorData = await response.json()
-        if (errorData.error === 'NO_OUTPUT_DIR') {
-          error.value = 'Choisissez d\'abord un dossier de téléchargement'
-        }
         throw new Error(errorData.error || 'Failed to add to queue')
       }
 
