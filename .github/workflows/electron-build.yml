@@ -24,9 +24,6 @@ jobs:
     name: Build (${{ matrix.label }})
     runs-on: ${{ matrix.os }}
 
-    permissions:
-      contents: write
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,22 +45,12 @@ jobs:
         run: npm install
         working-directory: client
 
-      # PR ouverte / mise à jour → build simple pour vérifier que ça compile
-      - name: Build (PR)
-        if: github.event_name == 'pull_request'
+      - name: Build
         run: npm run electron:build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # PR mergée (push sur Electron-app) → build + GitHub Release
-      - name: Build & Publish (merge)
-        if: github.event_name == 'push'
-        run: npm run electron:build -- --publish always
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload artifact (PR only)
-        if: github.event_name == 'pull_request'
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: SC-Downloader-${{ matrix.label }}
@@ -72,3 +59,29 @@ jobs:
             dist-electron/*.exe
             dist-electron/*.AppImage
           if-no-files-found: warn
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          files: |
+            artifacts/*.dmg
+            artifacts/*.exe
+            artifacts/*.AppImage
