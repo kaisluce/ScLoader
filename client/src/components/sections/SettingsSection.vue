@@ -223,7 +223,7 @@
                 SC Downloader
               </div>
               <div class="app-version">
-                Version 1.4.0
+                Version 1.0.0
               </div>
             </div>
             <a

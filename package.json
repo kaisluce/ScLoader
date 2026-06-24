@@ -19,6 +19,7 @@
       "!server/node_modules/**"
     ],
     "asarUnpack": ["**/node_modules/ffmpeg-static/**"],
+    "publish": { "provider": "github" },
     "mac": { "category": "public.app-category.music", "icon": "build/icons/mac/icon.icns" },
     "win": { "target": "nsis", "icon": "build/icons/win/icon.ico" },
     "linux": { "target": "AppImage", "icon": "build/icons/png/512x512.png" }
