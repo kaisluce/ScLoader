@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 
 const routes = [
@@ -29,9 +29,13 @@ const routes = [
   }
 ]
 
+// adaptation du router pour Electron :
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: process.env.VUE_APP_ELECTRON
+    ? createWebHashHistory()
+    : createWebHistory(process.env.BASE_URL),
   routes
 })
+
 
 export default router

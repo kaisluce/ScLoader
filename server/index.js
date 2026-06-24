@@ -127,9 +127,21 @@ app.use('/api', downloaderRouter)
 
 // ─── Boot ────────────────────────────────────────────────────────────────────
 
-app.listen(PORT, async () => {
-  await initDownloader()
-  console.log(`✓ SoundCloud proxy server running on http://localhost:${PORT}`)
-  console.log(`✓ Download API available at /api/downloads`)
-  console.log(`✓ Logs API available at /api/logs`)
-})
+function start(port = PORT) {
+  return new Promise((resolve) => {
+    app.listen(port, async () => {
+      await initDownloader()
+      console.log(`✓ SoundCloud proxy server running on http://localhost:${port}`)
+      console.log(`✓ Download API available at /api/downloads`)
+      console.log(`✓ Logs API available at /api/logs`)
+      resolve(port)
+    })
+  })
+}
+
+if (require.main === module) {
+  start()
+}
+
+module.exports = { app, start }
+
