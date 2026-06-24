@@ -309,4 +309,8 @@ function fmtCount(n) {
 .nav-settings {
   margin-top: auto;
 }
+
+:global(body.electron .sidebar) {
+  padding-top: 50px;
+}
 </style>

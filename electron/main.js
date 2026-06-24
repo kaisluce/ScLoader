@@ -16,7 +16,8 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    titleBarStyle: 'hiddenInset',
+    trafficLightPosition: { x: -100, y: -100 },
     backgroundColor: '#0f0f0f',
     show: false,
   })
@@ -30,6 +31,13 @@ function createWindow() {
 
   mainWindow.once('ready-to-show', () => mainWindow.show())
 }
+
+ipcMain.handle('window:minimize', () => mainWindow.minimize())
+ipcMain.handle('window:maximize', () => {
+  if (mainWindow.isMaximized()) mainWindow.unmaximize()
+  else mainWindow.maximize()
+})
+ipcMain.handle('window:close', () => mainWindow.close())
 
 ipcMain.handle('dialog:browse-folder', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
